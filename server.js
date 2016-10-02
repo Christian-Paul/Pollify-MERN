@@ -34,6 +34,7 @@ var sessionOptions = {
 // middleware
 app.use(session(sessionOptions));
 app.use('/bin', express.static(path.join(__dirname, 'bin')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({extended: true}));
 
 var twitter = new Twitter({
