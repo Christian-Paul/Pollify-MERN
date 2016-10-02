@@ -19,12 +19,13 @@ if(port === 3000) {
 		mongoosePassword: process.env.mongoosePassword,
 		consumerKey: process.env.consumerKey,
 		consumerSecret: process.env.consumerSecret,
-		callbackUrl: process.env.callbackUrl
+		callbackUrl: process.env.callbackUrl,
+		sessionSecret: process.env.sessionSecret
 	};
 }
 
 var sessionOptions = {
-	secret: 'rgdhdgaweklgfwerlg',
+	secret: config.sessionSecret,
 	saveUninitialized: true,
 	resave: false,
 	store: new FileStore(),
