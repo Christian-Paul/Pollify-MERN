@@ -1,32 +1,14 @@
 import { IndexLink } from 'react-router';
 import React from 'react';
 
+import UserMenu from './UserMenu.jsx';
+
 const Navbar = React.createClass({
-	getInitialState: function() {
-		return {
-			userMenuVisible: ''
-		}
-	},
-	toggleUserMenu: function() {
-		// check menu status and toggle it
-		var newStatus = this.state.userMenuVisible === '' ? ' triggered' : '';
-		this.setState({
-			userMenuVisible: newStatus
-		});
-	},
 	signIn: function() {
 		$.ajax('/request-token')
 			.done(function(response) {
 				console.log(response);
 				window.location = response;
-			});
-	},
-	signOut: function() {
-		var self = this;
-
-		$.ajax('/sign-out')
-			.done(function() {
-				self.props.signOut();
 			});
 	},
 	renderDefault: function() {
@@ -63,19 +45,7 @@ const Navbar = React.createClass({
 				        </IndexLink>
 					</div>
 					<div className='destination'>
-						<div className={'user-interface' + this.state.userMenuVisible} onClick={this.toggleUserMenu}>
-							<div className="user-info">
-								<img src={this.props.userImage} className='user-image' />
-							</div>
-							<div className="dropdown-arrow"></div>
-							<div className="dropdown-arrow-shadow"></div>
-							<div className="dropdown">
-								<div className='username'>{this.props.userName}</div>
-								<IndexLink to={'/users/' + this.props.userId}>My Polls</IndexLink>
-								<IndexLink to='/new-poll'>New Poll</IndexLink>
-								<IndexLink onClick={this.signOut}>Sign Out</IndexLink>
-							</div>
-						</div>
+						<UserMenu signOut={this.props.signOut} userIsAuthenticated={this.props.userIsAuthenticated} userName={this.props.userName} userImage={this.props.userImage} userId={this.props.userId} />
 					</div>
 				</div>
 			</div>
