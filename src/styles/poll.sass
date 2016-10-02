@@ -145,6 +145,7 @@ html, body
 							align-items: center
 							justify-content: center
 							margin-top: 3rem
+							max-width: 65%
 
 							@media(min-width: 1200px)
 								margin-top: 0
@@ -179,12 +180,21 @@ html, body
 									background-color: $warn-dark
 									color: #fff
 
-							.text-results
-								margin-bottom: 0.5rem
+							.legend
 								display: flex
 								flex-wrap: wrap
 								max-width: 400px
 								justify-content: center
 
-								> div
-									margin-right: 0.2rem
+								.legend-item
+									display: flex
+									align-items: center
+									font-size: 0.9rem
+									color: #444
+									margin-bottom: 10px
+
+									.legend-color
+										height: 13px
+										width: 45px
+										margin-right: 7px
+										margin-left: 7px

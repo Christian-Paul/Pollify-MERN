@@ -2,8 +2,6 @@ import Chart from 'chart.js'
 import { Doughnut as DoughnutChart } from 'react-chartjs';
 import React from 'react';
 
-Chart.defaults.global.responsive = true;
-
 var MyChart = React.createClass({
 	render: function() {
 		const categoryColors = ["#3366CC","#DC3912","#FF9900","#109618","#990099","#3B3EAC","#0099C6","#DD4477","#66AA00","#B82E2E","#316395","#994499","#22AA99","#AAAA11","#6633CC","#E67300","#8B0707","#329262","#5574A6","#3B3EAC"];
@@ -15,6 +13,12 @@ var MyChart = React.createClass({
 				value: item.votes
 			}
 		});
+
+		var chartOptions = {
+			responsive: true,
+			animationEasing: 'easeOutQuart',
+			animationSteps: 60
+		};
 
 		var tempData = [
 			{
@@ -29,7 +33,7 @@ var MyChart = React.createClass({
 			}
 		]
 
-		return <DoughnutChart data={chartData} width='400' height='400' />
+		return <DoughnutChart data={chartData} options={chartOptions} width='400' height='400' />
 	}
 });
 
