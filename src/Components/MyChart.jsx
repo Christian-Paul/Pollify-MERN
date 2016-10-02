@@ -1,6 +1,6 @@
-import React from 'react';
 import Chart from 'chart.js'
 import { Doughnut as DoughnutChart } from 'react-chartjs';
+import React from 'react';
 
 Chart.defaults.global.responsive = true;
 

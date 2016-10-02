@@ -1,5 +1,5 @@
-import React from 'react';
 import { IndexLink } from 'react-router';
+import React from 'react';
 
 import Footer from './Footer.jsx';
 import Navbar from './Navbar.jsx';

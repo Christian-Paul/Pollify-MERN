@@ -1,8 +1,8 @@
-import React from 'react';
 import { IndexLink } from 'react-router';
+import React from 'react';
 
-import VotingInterface from './VotingInterface.jsx';
 import PollResults from './PollResults.jsx';
+import VotingInterface from './VotingInterface.jsx';
 
 const Poll = React.createClass({
 	getInitialState: function() {
