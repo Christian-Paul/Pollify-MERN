@@ -38,7 +38,7 @@ const Poll = React.createClass({
 	},
 	render: function() {
 		return (
-			<div className='main-container'>
+			<div className='poll-main-container'>
 				<div className='poll-outline'>
 					<div className='poll-holder'>
 						<div className='poll-interface'>

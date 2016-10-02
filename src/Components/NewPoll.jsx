@@ -44,16 +44,16 @@ const NewPoll = React.createClass({
 	},
 	render: function() {
 		return (
-			<div className='main-container'>
+			<div className='new-poll-main-container'>
 				<div className='form-outline'>
 					<div className='form-holder'>
 						<div className='title' onChange={this.updateTitle}>Create a New Poll</div>
 						<div className='form'>
-							<input type='text' name='title' placeholder='Your Poll title' className='poll-title-input' onChange={this.updateTitle} />
+							<input type='text' name='title' placeholder='Your Poll Title' className='poll-title-input' onChange={this.updateTitle} />
 							<div className='options-holder'>
-								<input type='text' placeholder='Enter options here...' name='option-1' onChange={this.updateOptions} />
-								<input type='text' placeholder='Enter options here...' name='option-2' onChange={this.updateOptions} />
-								<input type='text' placeholder='Enter options here...' name='option-3' onChange={this.updateOptions} />
+								<input type='text' placeholder='Enter Options Here...' name='option-1' onChange={this.updateOptions} />
+								<input type='text' placeholder='Enter Options Here...' name='option-2' onChange={this.updateOptions} />
+								<input type='text' placeholder='Enter Options Here...' name='option-3' onChange={this.updateOptions} />
 							</div>
 							<button onClick={this.postPoll}>Submit</button>
 						</div>
