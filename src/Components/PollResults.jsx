@@ -19,32 +19,49 @@ const PollResults = React.createClass({
 	        }
 	    });
 	},
-	renderOwner: function() {
-		// show this view only if user is the owner of the poll
-		return (
-			<div className='poll-results'>
-				<ChartLegend pollOptions={this.props.pollOptions} />
-				<MyChart pollOptions={this.props.pollOptions} />
-				<div className='delete-container'>
-					<div className='delete-button' onClick={this.deletePoll}>Delete Poll</div>
-				</div>
-			</div>
-		)
-	},
-	renderDefault: function() {
-		return (
-			<div className='poll-results'>
-				<ChartLegend pollOptions={this.props.pollOptions} />
-				<MyChart pollOptions={this.props.pollOptions} />
-			</div>
-		)
+	checkForVotes: function() {
+		var options = this.props.pollOptions;
+
+		for(var i = 0; i < options.length; i++) {
+			if(options[i].votes > 0) {
+				return true
+			}
+		}
+
+		return false
 	},
 	render: function() {
-		if(this.props.userId && this.props.pollAuthorId === this.props.userId) {
-			return this.renderOwner()
-		} else {
-			return this.renderDefault()
-		}
+		return (
+			<div className='poll-results'>
+				{
+					(() => {
+						if(this.checkForVotes()) {
+							return (
+								<div>
+									<ChartLegend pollOptions={this.props.pollOptions} />
+									<MyChart pollOptions={this.props.pollOptions} />
+								</div>
+							)
+						} else {
+							return (
+								<div className='results-placeholder'>No results yet</div>
+							)
+						}
+					})()
+				}
+				{
+					(() => {
+						if(this.props.userId && this.props.pollAuthorId === this.props.userId) {
+							return (
+								<div className='delete-container'>
+									<div className='delete-button' onClick={this.deletePoll}>Delete Poll</div>
+								</div>
+							)
+						}
+					})()
+				}
+			</div>
+		)
 	}
 });
 
