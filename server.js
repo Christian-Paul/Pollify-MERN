@@ -267,9 +267,12 @@ app.post('/create-poll', function(req, res) {
 	var optionsArr = [];
 
 	for(option in formData.pollOptions) {
-		optionsArr.push({
-			name: formData.pollOptions[option]
-		});
+		// only push the option value if its length is greater than 0 (not '')
+		if(formData.pollOptions[option] !== '') {
+			optionsArr.push({
+				name: formData.pollOptions[option]
+			});
+		}
 	}
 
 	var newPoll = new Poll({

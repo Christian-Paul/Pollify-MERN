@@ -37,7 +37,7 @@ const PollResults = React.createClass({
 					(() => {
 						if(this.checkForVotes()) {
 							return (
-								<div>
+								<div className='chart-container'>
 									<ChartLegend pollOptions={this.props.pollOptions} />
 									<MyChart pollOptions={this.props.pollOptions} />
 								</div>

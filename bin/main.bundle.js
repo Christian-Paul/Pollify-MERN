@@ -58,7 +58,7 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	__webpack_require__(248);
+	__webpack_require__(260);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -96,11 +96,11 @@
 
 	var _Poll2 = _interopRequireDefault(_Poll);
 
-	var _RecentPolls = __webpack_require__(246);
+	var _RecentPolls = __webpack_require__(258);
 
 	var _RecentPolls2 = _interopRequireDefault(_RecentPolls);
 
-	var _UserPolls = __webpack_require__(247);
+	var _UserPolls = __webpack_require__(259);
 
 	var _UserPolls2 = _interopRequireDefault(_UserPolls);
 
@@ -27810,7 +27810,11 @@
 		getInitialState: function getInitialState() {
 			return {
 				pollTitle: '',
-				pollOptions: {}
+				pollOptions: {
+					'option-1': '',
+					'option-2': '',
+					'option-3': ''
+				}
 			};
 		},
 		updateTitle: function updateTitle(event) {
@@ -27820,17 +27824,44 @@
 		},
 		updateOptions: function updateOptions(event) {
 			var tempOptions = this.state.pollOptions;
+			var optionsFull = true;
 
 			tempOptions[event.target.name] = event.target.value;
 
 			this.setState({
 				pollOptions: tempOptions
 			});
+
+			for (var item in tempOptions) {
+				if (tempOptions[item].length === 0) {
+					optionsFull = false;
+				}
+			}
+
+			if (optionsFull) {
+				this.appendInput(Object.keys(this.state.pollOptions).length + 1);
+			}
+		},
+		appendInput: function appendInput(inputNumber) {
+			// update state to include new option
+			var tempOptions = this.state.pollOptions;
+			var optionName = 'option-' + inputNumber;
+			tempOptions[optionName] = '';
+
+			this.setState({
+				pollOptions: tempOptions
+			});
+		},
+		getOptions: function getOptions() {
+			var self = this;
+			var optionsArray = Object.keys(this.state.pollOptions);
+
+			return optionsArray.map(function (option, i) {
+				return _react2.default.createElement('input', { type: 'text', placeholder: 'Enter Options Here...', name: option, key: i, onChange: self.updateOptions });
+			});
 		},
 		postPoll: function postPoll() {
 			var self = this;
-
-			console.log(self.state.pollTitle);
 
 			$.ajax({
 				type: 'POST',
@@ -27867,9 +27898,7 @@
 							_react2.default.createElement(
 								'div',
 								{ className: 'options-holder' },
-								_react2.default.createElement('input', { type: 'text', placeholder: 'Enter Options Here...', name: 'option-1', onChange: this.updateOptions }),
-								_react2.default.createElement('input', { type: 'text', placeholder: 'Enter Options Here...', name: 'option-2', onChange: this.updateOptions }),
-								_react2.default.createElement('input', { type: 'text', placeholder: 'Enter Options Here...', name: 'option-3', onChange: this.updateOptions })
+								this.getOptions()
 							),
 							_react2.default.createElement(
 								'button',
@@ -27933,7 +27962,7 @@
 
 	var _PollResults2 = _interopRequireDefault(_PollResults);
 
-	var _VotingInterface = __webpack_require__(245);
+	var _VotingInterface = __webpack_require__(257);
 
 	var _VotingInterface2 = _interopRequireDefault(_VotingInterface);
 
@@ -28027,11 +28056,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _ChartLegend = __webpack_require__(252);
+	var _ChartLegend = __webpack_require__(245);
 
 	var _ChartLegend2 = _interopRequireDefault(_ChartLegend);
 
-	var _MyChart = __webpack_require__(253);
+	var _MyChart = __webpack_require__(246);
 
 	var _MyChart2 = _interopRequireDefault(_MyChart);
 
@@ -28075,7 +28104,7 @@
 					if (_this.checkForVotes()) {
 						return _react2.default.createElement(
 							'div',
-							null,
+							{ className: 'chart-container' },
 							_react2.default.createElement(_ChartLegend2.default, { pollOptions: _this.props.pollOptions }),
 							_react2.default.createElement(_MyChart2.default, { pollOptions: _this.props.pollOptions })
 						);
@@ -28108,646 +28137,6 @@
 
 /***/ },
 /* 245 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-
-	var _react = __webpack_require__(2);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var VotingInterface = _react2.default.createClass({
-		displayName: 'VotingInterface',
-
-		getInitialState: function getInitialState() {
-			return {
-				addingOption: false,
-				selectedOption: '',
-				newOption: ''
-			};
-		},
-		selectOption: function selectOption(event) {
-			this.setState({
-				selectedOption: event.target.value
-			});
-		},
-		updateNewOption: function updateNewOption(event) {
-			this.setState({
-				newOption: event.target.value
-			});
-		},
-		getOptions: function getOptions() {
-			var self = this;
-			// get options from props and render them properly
-			var styledOptions = this.props.pollOptions.map(function (option, i) {
-				return _react2.default.createElement(
-					'div',
-					{ className: 'option', key: i },
-					_react2.default.createElement(
-						'label',
-						null,
-						_react2.default.createElement('input', { type: 'radio', name: 'user-choice', value: i, onClick: self.selectOption }),
-						option.name
-					)
-				);
-			});
-			return _react2.default.createElement(
-				'div',
-				null,
-				styledOptions
-			);
-		},
-		sendVote: function sendVote() {
-			// send vote to server
-			var self = this;
-			$.ajax({
-				url: '/vote?pollId=' + self.props.pollId + '&vote=' + self.state.selectedOption,
-				success: function success(response) {
-					console.log(response);
-					if (response.result === 'success') {
-						// if user voted successfuly, update options state in Poll component
-						self.props.updateOptions(response.pollOptions);
-					} else {
-						// if vote failed, show error message
-						alert('This account or IP address has already voted');
-					}
-				}
-			});
-		},
-		sendNewOption: function sendNewOption() {
-			// send new option to server
-			var self = this;
-			$.ajax({
-				url: '/add-option?pollId=' + self.props.pollId + '&newOption=' + self.state.newOption,
-				success: function success(response) {
-					// update options state in Poll component when done
-					self.props.updateOptions(response.pollOptions);
-					self.toggleAdding();
-				}
-			});
-		},
-		toggleAdding: function toggleAdding() {
-			this.setState({
-				addingOption: !this.state.addingOption
-			});
-		},
-		renderAdding: function renderAdding() {
-			return _react2.default.createElement(
-				'div',
-				{ className: 'voting-interface' },
-				_react2.default.createElement(
-					'div',
-					{ className: 'vote-form' },
-					this.getOptions()
-				),
-				_react2.default.createElement(
-					'div',
-					{ className: 'new-option' },
-					_react2.default.createElement(
-						'div',
-						{ className: 'new-option-form' },
-						_react2.default.createElement('input', { type: 'text', name: 'new-option', placeholder: 'New Option', onChange: this.updateNewOption }),
-						_react2.default.createElement(
-							'button',
-							{ type: 'submit', className: 'add-new', onClick: this.sendNewOption },
-							'Add'
-						),
-						_react2.default.createElement(
-							'button',
-							{ type: 'button', className: 'cancel-new', onClick: this.toggleAdding },
-							'Cancel'
-						)
-					)
-				)
-			);
-		},
-		renderDefault: function renderDefault() {
-			return _react2.default.createElement(
-				'div',
-				{ className: 'voting-interface' },
-				_react2.default.createElement(
-					'div',
-					{ className: 'vote-form' },
-					this.getOptions(),
-					_react2.default.createElement(
-						'div',
-						{ className: 'init-new-option', onClick: this.toggleAdding },
-						'Or add your own option...'
-					),
-					_react2.default.createElement(
-						'button',
-						{ className: 'vote-button', type: 'submit', onClick: this.sendVote },
-						'Vote!'
-					)
-				)
-			);
-		},
-		render: function render() {
-			if (this.state.addingOption) {
-				return this.renderAdding();
-			} else {
-				return this.renderDefault();
-			}
-		}
-	});
-
-	exports.default = VotingInterface;
-
-/***/ },
-/* 246 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-
-	var _reactRouter = __webpack_require__(35);
-
-	var _react = __webpack_require__(2);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var RecentPolls = _react2.default.createClass({
-		displayName: 'RecentPolls',
-
-		getInitialState: function getInitialState() {
-			return {
-				polls: []
-			};
-		},
-		componentDidMount: function componentDidMount() {
-			// send request for recent polls
-			var self = this;
-			$.ajax('/recent-polls').done(function (response) {
-				self.setState({
-					// add recent polls to polls state
-					polls: self.state.polls.concat(JSON.parse(response))
-				});
-			});
-		},
-		render: function render() {
-			return _react2.default.createElement(
-				'div',
-				{ className: 'main-container' },
-				_react2.default.createElement(
-					'div',
-					{ className: 'title' },
-					'Create and participate in polls'
-				),
-				_react2.default.createElement(
-					'div',
-					{ className: 'polls-holder' },
-					this.state.polls.map(function (poll, i) {
-						return _react2.default.createElement(
-							'div',
-							{ className: 'poll', key: i },
-							_react2.default.createElement(
-								_reactRouter.IndexLink,
-								{ to: '/polls/' + poll['_id'] },
-								poll.title
-							)
-						);
-					})
-				)
-			);
-		}
-	});
-
-	exports.default = RecentPolls;
-
-/***/ },
-/* 247 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-
-	var _reactRouter = __webpack_require__(35);
-
-	var _react = __webpack_require__(2);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var UserPolls = _react2.default.createClass({
-		displayName: 'UserPolls',
-
-		getInitialState: function getInitialState() {
-			return {
-				userId: '',
-				userName: '',
-				polls: []
-			};
-		},
-		componentDidMount: function componentDidMount() {
-			// send request for user's polls
-			var self = this;
-			$.ajax('/user-polls/' + self.props.params.user).done(function (response) {
-				var response = JSON.parse(response);
-				self.setState({
-					// add recent polls to polls state
-					userId: self.props.params.user,
-					userName: response[0].author.name,
-					polls: self.state.polls.concat(response)
-				});
-			});
-		},
-		render: function render() {
-			return _react2.default.createElement(
-				'div',
-				{ className: 'main-container' },
-				_react2.default.createElement(
-					'div',
-					{ className: 'title' },
-					'Here are ',
-					this.state.userName,
-					'\'s polls'
-				),
-				_react2.default.createElement(
-					'div',
-					{ className: 'polls-holder' },
-					this.state.polls.map(function (poll, i) {
-						return _react2.default.createElement(
-							'div',
-							{ className: 'poll', key: i },
-							_react2.default.createElement(
-								_reactRouter.IndexLink,
-								{ to: '/polls/' + poll['_id'] },
-								poll.title
-							)
-						);
-					})
-				)
-			);
-		}
-	});
-
-	exports.default = UserPolls;
-
-/***/ },
-/* 248 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(249);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(251)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./style.sass", function() {
-				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./style.sass");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 249 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(250)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "footer {\n  display: flex;\n  width: 100%;\n  background-color: #b0bec5;\n  justify-content: center;\n  align-items: center;\n  height: 5em; }\n  footer .info-container {\n    width: 95%;\n    display: flex;\n    justify-content: space-between;\n    align-items: center; }\n    footer .info-container .text-container {\n      display: flex;\n      flex-direction: column;\n      font-size: 0.9rem; }\n      footer .info-container .text-container .source a, footer .info-container .text-container .signature a {\n        text-decoration: none;\n        color: #f5f5f5;\n        transition: color 250ms ease; }\n      footer .info-container .text-container .source a:hover, footer .info-container .text-container .signature a:hover {\n        color: #fff; }\n    footer .info-container .icons-container {\n      display: flex;\n      justify-content: space-between; }\n      footer .info-container .icons-container .icon + .icon {\n        margin-left: 1.5rem; }\n      footer .info-container .icons-container .icon {\n        display: flex;\n        justify-content: center;\n        align-items: center; }\n        footer .info-container .icons-container .icon .linkedin-svg, footer .info-container .icons-container .icon .github-svg, footer .info-container .icons-container .icon .link-svg {\n          fill: #6f7476;\n          transition: 0.35s ease all;\n          height: 2rem;\n          width: 2rem; }\n          @media (min-width: 700px) {\n            footer .info-container .icons-container .icon .linkedin-svg, footer .info-container .icons-container .icon .github-svg, footer .info-container .icons-container .icon .link-svg {\n              height: 2.5rem;\n              width: 2.5rem; } }\n        footer .info-container .icons-container .icon .linkedin-svg:hover, footer .info-container .icons-container .icon .github-svg:hover, footer .info-container .icons-container .icon .link-svg:hover {\n          fill: #515556; }\n\n.navbar-container {\n  width: 100%;\n  background-color: #fff;\n  color: #777;\n  position: fixed;\n  top: 0;\n  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);\n  transition: box-shadow 250ms ease;\n  font-weight: 500;\n  font-size: 0.875rem;\n  text-transform: uppercase;\n  display: flex;\n  justify-content: center;\n  z-index: 1; }\n  .navbar-container .navbar {\n    width: 95%;\n    display: flex;\n    justify-content: space-between; }\n    .navbar-container .navbar .destination:hover {\n      color: brown; }\n    .navbar-container .navbar .destination {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      position: relative;\n      transition: color 250ms ease; }\n      .navbar-container .navbar .destination .logo-holder {\n        width: auto; }\n      .navbar-container .navbar .destination > a {\n        text-decoration: none;\n        color: #777;\n        height: 4.5rem;\n        width: 6rem;\n        display: flex;\n        align-items: center;\n        justify-content: center; }\n        .navbar-container .navbar .destination > a .logo {\n          fill: #e94f28;\n          transition: fill 250ms ease;\n          margin-right: 0.15rem;\n          height: 3.75rem;\n          width: auto; }\n        .navbar-container .navbar .destination > a .logo-name {\n          color: #e94f28;\n          transition: color 250ms ease;\n          text-transform: none;\n          font-size: 1.25rem;\n          font-family: 'Comfortaa'; }\n      .navbar-container .navbar .destination a:hover .logo {\n        fill: darkorange; }\n      .navbar-container .navbar .destination a:hover .logo-name {\n        color: darkorange; }\n      .navbar-container .navbar .destination .user-interface {\n        cursor: pointer;\n        display: flex;\n        height: 4.5rem; }\n        .navbar-container .navbar .destination .user-interface .user-info {\n          display: flex;\n          align-items: center; }\n          .navbar-container .navbar .destination .user-interface .user-info .user-image {\n            border-radius: 0.1rem; }\n        .navbar-container .navbar .destination .user-interface .dropdown-arrow {\n          position: absolute;\n          height: 0;\n          width: 0;\n          top: 4.5rem;\n          right: calc(50% - 0.5rem);\n          z-index: 2; }\n        .navbar-container .navbar .destination .user-interface .dropdown-arrow-shadow {\n          position: absolute;\n          height: 0;\n          width: 0;\n          top: 4.44rem;\n          right: calc(50% - 0.5rem); }\n        .navbar-container .navbar .destination .user-interface .dropdown {\n          position: absolute;\n          top: 5rem;\n          right: 0;\n          display: flex;\n          min-width: 9rem; }\n          .navbar-container .navbar .destination .user-interface .dropdown a, .navbar-container .navbar .destination .user-interface .dropdown .username {\n            display: none; }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow-shadow {\n        border-left: 0.5rem solid transparent;\n        border-right: 0.5rem solid transparent;\n        border-bottom: 0.5rem solid rgba(0, 0, 0, 0.2); }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow {\n        border-left: 0.5rem solid transparent;\n        border-right: 0.5rem solid transparent;\n        border-bottom: 0.5rem solid #fff; }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow, .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow-shadow, .navbar-container .navbar .destination .user-interface.triggered .dropdown > a, .navbar-container .navbar .destination .user-interface.triggered .username {\n        opacity: 0;\n        animation-name: menu1;\n        animation-duration: 150ms;\n        animation-timing-function: ease-in-out;\n        animation-fill-mode: forwards; }\n\n@keyframes menu1 {\n  0% {\n    opacity: 0; }\n  100% {\n    opacity: 1; } }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown {\n        display: flex;\n        flex-direction: column;\n        height: 13.5rem;\n        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2); }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown a, .navbar-container .navbar .destination .user-interface.triggered .dropdown .username {\n          height: 4.5rem;\n          background-color: #fff;\n          width: 100%;\n          display: flex;\n          justify-content: center;\n          position: relative;\n          text-decoration: none;\n          color: #777;\n          align-items: center;\n          transition: background-color 250ms ease; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown a:hover {\n          background-color: #eee; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown .username {\n          cursor: default; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown .username:after {\n          content: '';\n          position: absolute;\n          width: 50%;\n          left: 25%;\n          bottom: 0%;\n          border-bottom: 1px solid rgba(0, 0, 0, 0.2); }\n      .navbar-container .navbar .destination .sign-in {\n        background-color: #e94f28;\n        transition: background-color 250ms ease;\n        border-radius: 0.1rem; }\n        .navbar-container .navbar .destination .sign-in a {\n          text-decoration: none;\n          color: #fff;\n          height: 2.75rem;\n          width: 6.5rem;\n          display: flex;\n          align-items: center;\n          justify-content: center;\n          cursor: pointer; }\n      .navbar-container .navbar .destination .sign-in:hover {\n        background-color: darkorange; }\n\nfooter {\n  display: flex;\n  width: 100%;\n  background-color: #b0bec5;\n  justify-content: center;\n  align-items: center;\n  height: 5em; }\n  footer .info-container {\n    width: 95%;\n    display: flex;\n    justify-content: space-between;\n    align-items: center; }\n    footer .info-container .text-container {\n      display: flex;\n      flex-direction: column;\n      font-size: 0.9rem; }\n      footer .info-container .text-container .source a, footer .info-container .text-container .signature a {\n        text-decoration: none;\n        color: #f5f5f5;\n        transition: color 250ms ease; }\n      footer .info-container .text-container .source a:hover, footer .info-container .text-container .signature a:hover {\n        color: #fff; }\n    footer .info-container .icons-container {\n      display: flex;\n      justify-content: space-between; }\n      footer .info-container .icons-container .icon + .icon {\n        margin-left: 1.5rem; }\n      footer .info-container .icons-container .icon {\n        display: flex;\n        justify-content: center;\n        align-items: center; }\n        footer .info-container .icons-container .icon .linkedin-svg, footer .info-container .icons-container .icon .github-svg, footer .info-container .icons-container .icon .link-svg {\n          fill: #6f7476;\n          transition: 0.35s ease all;\n          height: 2rem;\n          width: 2rem; }\n          @media (min-width: 700px) {\n            footer .info-container .icons-container .icon .linkedin-svg, footer .info-container .icons-container .icon .github-svg, footer .info-container .icons-container .icon .link-svg {\n              height: 2.5rem;\n              width: 2.5rem; } }\n        footer .info-container .icons-container .icon .linkedin-svg:hover, footer .info-container .icons-container .icon .github-svg:hover, footer .info-container .icons-container .icon .link-svg:hover {\n          fill: #515556; }\n\n.navbar-container {\n  width: 100%;\n  background-color: #fff;\n  color: #777;\n  position: fixed;\n  top: 0;\n  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);\n  transition: box-shadow 250ms ease;\n  font-weight: 500;\n  font-size: 0.875rem;\n  text-transform: uppercase;\n  display: flex;\n  justify-content: center;\n  z-index: 1; }\n  .navbar-container .navbar {\n    width: 95%;\n    display: flex;\n    justify-content: space-between; }\n    .navbar-container .navbar .destination:hover {\n      color: brown; }\n    .navbar-container .navbar .destination {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      position: relative;\n      transition: color 250ms ease; }\n      .navbar-container .navbar .destination .logo-holder {\n        width: auto; }\n      .navbar-container .navbar .destination > a {\n        text-decoration: none;\n        color: #777;\n        height: 4.5rem;\n        width: 6rem;\n        display: flex;\n        align-items: center;\n        justify-content: center; }\n        .navbar-container .navbar .destination > a .logo {\n          fill: #e94f28;\n          transition: fill 250ms ease;\n          margin-right: 0.15rem;\n          height: 3.75rem;\n          width: auto; }\n        .navbar-container .navbar .destination > a .logo-name {\n          color: #e94f28;\n          transition: color 250ms ease;\n          text-transform: none;\n          font-size: 1.25rem;\n          font-family: 'Comfortaa'; }\n      .navbar-container .navbar .destination a:hover .logo {\n        fill: darkorange; }\n      .navbar-container .navbar .destination a:hover .logo-name {\n        color: darkorange; }\n      .navbar-container .navbar .destination .user-interface {\n        cursor: pointer;\n        display: flex;\n        height: 4.5rem; }\n        .navbar-container .navbar .destination .user-interface .user-info {\n          display: flex;\n          align-items: center; }\n          .navbar-container .navbar .destination .user-interface .user-info .user-image {\n            border-radius: 0.1rem; }\n        .navbar-container .navbar .destination .user-interface .dropdown-arrow {\n          position: absolute;\n          height: 0;\n          width: 0;\n          top: 4.5rem;\n          right: calc(50% - 0.5rem);\n          z-index: 2; }\n        .navbar-container .navbar .destination .user-interface .dropdown-arrow-shadow {\n          position: absolute;\n          height: 0;\n          width: 0;\n          top: 4.44rem;\n          right: calc(50% - 0.5rem); }\n        .navbar-container .navbar .destination .user-interface .dropdown {\n          position: absolute;\n          top: 5rem;\n          right: 0;\n          display: flex;\n          min-width: 9rem; }\n          .navbar-container .navbar .destination .user-interface .dropdown a, .navbar-container .navbar .destination .user-interface .dropdown .username {\n            display: none; }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow-shadow {\n        border-left: 0.5rem solid transparent;\n        border-right: 0.5rem solid transparent;\n        border-bottom: 0.5rem solid rgba(0, 0, 0, 0.2); }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow {\n        border-left: 0.5rem solid transparent;\n        border-right: 0.5rem solid transparent;\n        border-bottom: 0.5rem solid #fff; }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow, .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow-shadow, .navbar-container .navbar .destination .user-interface.triggered .dropdown > a, .navbar-container .navbar .destination .user-interface.triggered .username {\n        opacity: 0;\n        animation-name: menu1;\n        animation-duration: 150ms;\n        animation-timing-function: ease-in-out;\n        animation-fill-mode: forwards; }\n\n@keyframes menu1 {\n  0% {\n    opacity: 0; }\n  100% {\n    opacity: 1; } }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown {\n        display: flex;\n        flex-direction: column;\n        height: 13.5rem;\n        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2); }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown a, .navbar-container .navbar .destination .user-interface.triggered .dropdown .username {\n          height: 4.5rem;\n          background-color: #fff;\n          width: 100%;\n          display: flex;\n          justify-content: center;\n          position: relative;\n          text-decoration: none;\n          color: #777;\n          align-items: center;\n          transition: background-color 250ms ease; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown a:hover {\n          background-color: #eee; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown .username {\n          cursor: default; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown .username:after {\n          content: '';\n          position: absolute;\n          width: 50%;\n          left: 25%;\n          bottom: 0%;\n          border-bottom: 1px solid rgba(0, 0, 0, 0.2); }\n      .navbar-container .navbar .destination .sign-in {\n        background-color: #e94f28;\n        transition: background-color 250ms ease;\n        border-radius: 0.1rem; }\n        .navbar-container .navbar .destination .sign-in a {\n          text-decoration: none;\n          color: #fff;\n          height: 2.75rem;\n          width: 6.5rem;\n          display: flex;\n          align-items: center;\n          justify-content: center;\n          cursor: pointer; }\n      .navbar-container .navbar .destination .sign-in:hover {\n        background-color: darkorange; }\n\nhtml, body {\n  margin: 0;\n  padding: 0;\n  background-color: #f5f5f5;\n  font-family: 'Roboto', Helvetica, Arial;\n  height: 100%;\n  font-weight: 300; }\n  html #app, body #app {\n    height: 100%; }\n    html #app > div, body #app > div {\n      display: flex;\n      flex-direction: column;\n      min-height: 100%; }\n      html #app > div .poll-main-container, body #app > div .poll-main-container {\n        display: flex;\n        align-items: center;\n        flex-direction: column;\n        margin-top: 8rem;\n        flex: 1;\n        width: 100%; }\n        html #app > div .poll-main-container .poll-outline, body #app > div .poll-main-container .poll-outline {\n          display: flex;\n          justify-content: center;\n          width: 80%;\n          background-color: #fff;\n          padding-top: 2em;\n          padding-bottom: 2em;\n          margin-bottom: 4em;\n          box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.4); }\n          html #app > div .poll-main-container .poll-outline .poll-holder, body #app > div .poll-main-container .poll-outline .poll-holder {\n            display: flex;\n            flex-direction: column;\n            align-items: center;\n            justify-content: space-between;\n            width: 85%; }\n            @media (min-width: 1200px) {\n              html #app > div .poll-main-container .poll-outline .poll-holder, body #app > div .poll-main-container .poll-outline .poll-holder {\n                flex-direction: row; } }\n            html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface {\n              max-width: 65%;\n              display: flex;\n              flex-direction: column; }\n              html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .poll-title, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .poll-title {\n                font-size: 2.75rem; }\n              html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .poll-author a, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .poll-author a {\n                color: #000; }\n              html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface {\n                margin-left: 1rem;\n                margin-top: 0.5rem; }\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form {\n                  display: flex;\n                  flex-direction: column; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .option, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .option {\n                    margin-top: 1rem;\n                    font-size: 1.2rem; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .init-new-option, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .init-new-option {\n                    color: #000;\n                    cursor: pointer;\n                    margin-top: 1rem;\n                    margin-left: 1.5rem;\n                    transition: color 250ms ease; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .init-new-option:hover, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .init-new-option:hover {\n                    color: #222; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .vote-button, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .vote-button {\n                    font-size: 1.2rem;\n                    border-radius: 2px;\n                    font-family: 'Roboto';\n                    font-weight: 300;\n                    margin-top: 1.25rem;\n                    background-color: darkgreen;\n                    border: none;\n                    color: #fff;\n                    height: 2.5rem;\n                    width: 6rem;\n                    cursor: pointer;\n                    align-self: center;\n                    transition: background-color 250ms ease; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .vote-button:hover, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .vote-button:hover {\n                    background-color: green; }\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option {\n                  margin-top: 1rem;\n                  display: flex; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form {\n                    display: flex; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form button, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form button {\n                      margin-left: 0.2rem; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form input, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form input {\n                      height: 1.65rem;\n                      padding-left: 0.25rem; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .add-new, html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .cancel-new, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .add-new, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .cancel-new {\n                      height: 2rem;\n                      width: 6rem;\n                      border-radius: 2px;\n                      font-family: 'Roboto';\n                      font-weight: 300;\n                      border: none;\n                      color: #fff;\n                      cursor: pointer; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .add-new, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .add-new {\n                      background-color: darkgreen;\n                      transition: background-color 250ms ease; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .add-new:hover, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .add-new:hover {\n                      background-color: green; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .cancel-new, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .cancel-new {\n                      background-color: #fff;\n                      border: 1px solid #333;\n                      color: #333;\n                      transition: background-color 250ms ease, color 250ms ease; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .cancel-new:hover, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .cancel-new:hover {\n                      background-color: #333;\n                      color: #fff; }\n            html #app > div .poll-main-container .poll-outline .poll-holder .poll-results, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results {\n              display: flex;\n              flex-direction: column;\n              align-items: center;\n              justify-content: center;\n              margin-top: 3rem;\n              max-width: 65%; }\n              @media (min-width: 1200px) {\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-results, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results {\n                  margin-top: 0;\n                  max-width: 35%; } }\n              html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .results-placeholder, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .results-placeholder {\n                display: flex;\n                justify-content: center; }\n              html #app > div .poll-main-container .poll-outline .poll-holder .poll-results > canvas, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results > canvas {\n                width: 100% !important; }\n              html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .delete-container, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .delete-container {\n                margin-top: 1rem;\n                display: flex;\n                align-self: center;\n                height: 3rem;\n                width: 8rem;\n                order: 5; }\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .delete-container .delete-button, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .delete-container .delete-button {\n                  background-color: #fff;\n                  color: brown;\n                  border: 1px solid brown;\n                  border-radius: 2px;\n                  text-decoration: none;\n                  height: 100%;\n                  width: 100%;\n                  display: flex;\n                  justify-content: center;\n                  align-items: center;\n                  cursor: pointer;\n                  transition: color 250ms ease, background-color 250ms ease; }\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .delete-container .delete-button:hover, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .delete-container .delete-button:hover {\n                  background-color: brown;\n                  color: #fff; }\n              html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .legend, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .legend {\n                display: flex;\n                flex-wrap: wrap;\n                max-width: 400px;\n                justify-content: center; }\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .legend .legend-item, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .legend .legend-item {\n                  display: flex;\n                  align-items: center;\n                  font-size: 0.9rem;\n                  color: #444;\n                  margin-bottom: 10px; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .legend .legend-item .legend-color, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .legend .legend-item .legend-color {\n                    height: 13px;\n                    width: 45px;\n                    margin-right: 7px;\n                    margin-left: 7px; }\n\nfooter {\n  display: flex;\n  width: 100%;\n  background-color: #b0bec5;\n  justify-content: center;\n  align-items: center;\n  height: 5em; }\n  footer .info-container {\n    width: 95%;\n    display: flex;\n    justify-content: space-between;\n    align-items: center; }\n    footer .info-container .text-container {\n      display: flex;\n      flex-direction: column;\n      font-size: 0.9rem; }\n      footer .info-container .text-container .source a, footer .info-container .text-container .signature a {\n        text-decoration: none;\n        color: #f5f5f5;\n        transition: color 250ms ease; }\n      footer .info-container .text-container .source a:hover, footer .info-container .text-container .signature a:hover {\n        color: #fff; }\n    footer .info-container .icons-container {\n      display: flex;\n      justify-content: space-between; }\n      footer .info-container .icons-container .icon + .icon {\n        margin-left: 1.5rem; }\n      footer .info-container .icons-container .icon {\n        display: flex;\n        justify-content: center;\n        align-items: center; }\n        footer .info-container .icons-container .icon .linkedin-svg, footer .info-container .icons-container .icon .github-svg, footer .info-container .icons-container .icon .link-svg {\n          fill: #6f7476;\n          transition: 0.35s ease all;\n          height: 2rem;\n          width: 2rem; }\n          @media (min-width: 700px) {\n            footer .info-container .icons-container .icon .linkedin-svg, footer .info-container .icons-container .icon .github-svg, footer .info-container .icons-container .icon .link-svg {\n              height: 2.5rem;\n              width: 2.5rem; } }\n        footer .info-container .icons-container .icon .linkedin-svg:hover, footer .info-container .icons-container .icon .github-svg:hover, footer .info-container .icons-container .icon .link-svg:hover {\n          fill: #515556; }\n\n.navbar-container {\n  width: 100%;\n  background-color: #fff;\n  color: #777;\n  position: fixed;\n  top: 0;\n  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);\n  transition: box-shadow 250ms ease;\n  font-weight: 500;\n  font-size: 0.875rem;\n  text-transform: uppercase;\n  display: flex;\n  justify-content: center;\n  z-index: 1; }\n  .navbar-container .navbar {\n    width: 95%;\n    display: flex;\n    justify-content: space-between; }\n    .navbar-container .navbar .destination:hover {\n      color: brown; }\n    .navbar-container .navbar .destination {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      position: relative;\n      transition: color 250ms ease; }\n      .navbar-container .navbar .destination .logo-holder {\n        width: auto; }\n      .navbar-container .navbar .destination > a {\n        text-decoration: none;\n        color: #777;\n        height: 4.5rem;\n        width: 6rem;\n        display: flex;\n        align-items: center;\n        justify-content: center; }\n        .navbar-container .navbar .destination > a .logo {\n          fill: #e94f28;\n          transition: fill 250ms ease;\n          margin-right: 0.15rem;\n          height: 3.75rem;\n          width: auto; }\n        .navbar-container .navbar .destination > a .logo-name {\n          color: #e94f28;\n          transition: color 250ms ease;\n          text-transform: none;\n          font-size: 1.25rem;\n          font-family: 'Comfortaa'; }\n      .navbar-container .navbar .destination a:hover .logo {\n        fill: darkorange; }\n      .navbar-container .navbar .destination a:hover .logo-name {\n        color: darkorange; }\n      .navbar-container .navbar .destination .user-interface {\n        cursor: pointer;\n        display: flex;\n        height: 4.5rem; }\n        .navbar-container .navbar .destination .user-interface .user-info {\n          display: flex;\n          align-items: center; }\n          .navbar-container .navbar .destination .user-interface .user-info .user-image {\n            border-radius: 0.1rem; }\n        .navbar-container .navbar .destination .user-interface .dropdown-arrow {\n          position: absolute;\n          height: 0;\n          width: 0;\n          top: 4.5rem;\n          right: calc(50% - 0.5rem);\n          z-index: 2; }\n        .navbar-container .navbar .destination .user-interface .dropdown-arrow-shadow {\n          position: absolute;\n          height: 0;\n          width: 0;\n          top: 4.44rem;\n          right: calc(50% - 0.5rem); }\n        .navbar-container .navbar .destination .user-interface .dropdown {\n          position: absolute;\n          top: 5rem;\n          right: 0;\n          display: flex;\n          min-width: 9rem; }\n          .navbar-container .navbar .destination .user-interface .dropdown a, .navbar-container .navbar .destination .user-interface .dropdown .username {\n            display: none; }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow-shadow {\n        border-left: 0.5rem solid transparent;\n        border-right: 0.5rem solid transparent;\n        border-bottom: 0.5rem solid rgba(0, 0, 0, 0.2); }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow {\n        border-left: 0.5rem solid transparent;\n        border-right: 0.5rem solid transparent;\n        border-bottom: 0.5rem solid #fff; }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow, .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow-shadow, .navbar-container .navbar .destination .user-interface.triggered .dropdown > a, .navbar-container .navbar .destination .user-interface.triggered .username {\n        opacity: 0;\n        animation-name: menu1;\n        animation-duration: 150ms;\n        animation-timing-function: ease-in-out;\n        animation-fill-mode: forwards; }\n\n@keyframes menu1 {\n  0% {\n    opacity: 0; }\n  100% {\n    opacity: 1; } }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown {\n        display: flex;\n        flex-direction: column;\n        height: 13.5rem;\n        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2); }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown a, .navbar-container .navbar .destination .user-interface.triggered .dropdown .username {\n          height: 4.5rem;\n          background-color: #fff;\n          width: 100%;\n          display: flex;\n          justify-content: center;\n          position: relative;\n          text-decoration: none;\n          color: #777;\n          align-items: center;\n          transition: background-color 250ms ease; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown a:hover {\n          background-color: #eee; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown .username {\n          cursor: default; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown .username:after {\n          content: '';\n          position: absolute;\n          width: 50%;\n          left: 25%;\n          bottom: 0%;\n          border-bottom: 1px solid rgba(0, 0, 0, 0.2); }\n      .navbar-container .navbar .destination .sign-in {\n        background-color: #e94f28;\n        transition: background-color 250ms ease;\n        border-radius: 0.1rem; }\n        .navbar-container .navbar .destination .sign-in a {\n          text-decoration: none;\n          color: #fff;\n          height: 2.75rem;\n          width: 6.5rem;\n          display: flex;\n          align-items: center;\n          justify-content: center;\n          cursor: pointer; }\n      .navbar-container .navbar .destination .sign-in:hover {\n        background-color: darkorange; }\n\nhtml, body {\n  margin: 0;\n  padding: 0;\n  background-color: #f5f5f5;\n  font-family: 'Roboto', Helvetica, Arial;\n  height: 100%;\n  font-weight: 300; }\n  html #app, body #app {\n    height: 100%; }\n    html #app > div, body #app > div {\n      display: flex;\n      flex-direction: column;\n      min-height: 100%; }\n      html #app > div .new-poll-main-container, body #app > div .new-poll-main-container {\n        display: flex;\n        justify-content: center;\n        width: 100%;\n        flex: 1;\n        margin-top: 8rem; }\n        html #app > div .new-poll-main-container .form-outline, body #app > div .new-poll-main-container .form-outline {\n          height: 100%;\n          width: 80%;\n          max-width: 575px;\n          background-color: #fff;\n          display: flex;\n          justify-content: center;\n          align-items: center;\n          padding-top: 1.5rem;\n          padding-bottom: 2.5rem;\n          margin-bottom: 4rem;\n          box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25); }\n          html #app > div .new-poll-main-container .form-outline .form-holder, body #app > div .new-poll-main-container .form-outline .form-holder {\n            display: flex;\n            flex-direction: column;\n            width: 80%;\n            height: 100%; }\n            html #app > div .new-poll-main-container .form-outline .form-holder .title, body #app > div .new-poll-main-container .form-outline .form-holder .title {\n              font-size: 3em;\n              text-align: center; }\n            html #app > div .new-poll-main-container .form-outline .form-holder .form, body #app > div .new-poll-main-container .form-outline .form-holder .form {\n              margin-top: 1rem;\n              display: flex;\n              flex-direction: column; }\n              html #app > div .new-poll-main-container .form-outline .form-holder .form .poll-title-input, body #app > div .new-poll-main-container .form-outline .form-holder .form .poll-title-input {\n                font-size: 1em; }\n              html #app > div .new-poll-main-container .form-outline .form-holder .form input, body #app > div .new-poll-main-container .form-outline .form-holder .form input {\n                height: 2.5rem;\n                padding-left: 0.25rem;\n                font-weight: 100; }\n              html #app > div .new-poll-main-container .form-outline .form-holder .form .options-holder, body #app > div .new-poll-main-container .form-outline .form-holder .form .options-holder {\n                display: flex;\n                flex-direction: column;\n                margin-top: 1.75rem; }\n                html #app > div .new-poll-main-container .form-outline .form-holder .form .options-holder input, body #app > div .new-poll-main-container .form-outline .form-holder .form .options-holder input {\n                  height: 2.25rem; }\n                html #app > div .new-poll-main-container .form-outline .form-holder .form .options-holder input + input, body #app > div .new-poll-main-container .form-outline .form-holder .form .options-holder input + input {\n                  margin-top: 0.75rem; }\n              html #app > div .new-poll-main-container .form-outline .form-holder .form button, body #app > div .new-poll-main-container .form-outline .form-holder .form button {\n                font-size: 1rem;\n                font-weight: 300;\n                margin-top: 1.5rem;\n                height: 2.75rem;\n                width: 6.5rem;\n                display: flex;\n                align-self: center;\n                justify-content: center;\n                align-items: center;\n                background-color: #e94f28;\n                color: #fff;\n                border: none;\n                cursor: pointer;\n                border-radius: 0.1rem;\n                transition: background-color 250ms ease; }\n              html #app > div .new-poll-main-container .form-outline .form-holder .form button:hover, body #app > div .new-poll-main-container .form-outline .form-holder .form button:hover {\n                background-color: darkorange; }\n\nhtml, body {\n  margin: 0;\n  padding: 0;\n  background-color: #f5f5f5;\n  font-family: 'Roboto', Helvetica, Arial;\n  height: 100%;\n  font-weight: 300; }\n  html #app, body #app {\n    height: 100%; }\n    html #app > div, body #app > div {\n      display: flex;\n      flex-direction: column;\n      min-height: 100%; }\n      html #app > div .main-container, body #app > div .main-container {\n        display: flex;\n        align-items: center;\n        flex-direction: column;\n        margin-top: 8rem;\n        flex: 1;\n        width: 100%; }\n        html #app > div .main-container .title, body #app > div .main-container .title {\n          font-size: 3.5rem; }\n        html #app > div .main-container .polls-holder, body #app > div .main-container .polls-holder {\n          margin-top: 2rem;\n          margin-bottom: 4rem;\n          width: 80%;\n          max-width: 1000px;\n          display: flex;\n          flex-direction: column;\n          align-items: center;\n          background-color: #fff;\n          padding-top: 1rem;\n          padding-bottom: 1rem;\n          border-radius: 2px;\n          box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.4);\n          font-size: 1.2rem; }\n          html #app > div .main-container .polls-holder .poll, body #app > div .main-container .polls-holder .poll {\n            width: 100%;\n            height: 4rem;\n            display: flex;\n            position: relative; }\n            html #app > div .main-container .polls-holder .poll a, body #app > div .main-container .polls-holder .poll a {\n              height: 100%;\n              width: 100%;\n              display: flex;\n              justify-content: center;\n              align-items: center;\n              text-decoration: none;\n              color: #000;\n              background-color: #fff; }\n            html #app > div .main-container .polls-holder .poll a:hover, body #app > div .main-container .polls-holder .poll a:hover {\n              background-color: #eee; }\n          html #app > div .main-container .polls-holder .poll:after, body #app > div .main-container .polls-holder .poll:after {\n            content: '';\n            position: absolute;\n            width: 80%;\n            bottom: 0;\n            left: 10%;\n            border-top: 1px solid rgba(50, 50, 50, 0.25); }\n          html #app > div .main-container .polls-holder .poll:last-child:after, body #app > div .main-container .polls-holder .poll:last-child:after {\n            border: none; }\n", ""]);
-
-	// exports
-
-
-/***/ },
-/* 250 */
-/***/ function(module, exports) {
-
-	/*
-		MIT License http://www.opensource.org/licenses/mit-license.php
-		Author Tobias Koppers @sokra
-	*/
-	// css base code, injected by the css-loader
-	module.exports = function() {
-		var list = [];
-
-		// return the list of modules as css string
-		list.toString = function toString() {
-			var result = [];
-			for(var i = 0; i < this.length; i++) {
-				var item = this[i];
-				if(item[2]) {
-					result.push("@media " + item[2] + "{" + item[1] + "}");
-				} else {
-					result.push(item[1]);
-				}
-			}
-			return result.join("");
-		};
-
-		// import a list of modules into the list
-		list.i = function(modules, mediaQuery) {
-			if(typeof modules === "string")
-				modules = [[null, modules, ""]];
-			var alreadyImportedModules = {};
-			for(var i = 0; i < this.length; i++) {
-				var id = this[i][0];
-				if(typeof id === "number")
-					alreadyImportedModules[id] = true;
-			}
-			for(i = 0; i < modules.length; i++) {
-				var item = modules[i];
-				// skip already imported module
-				// this implementation is not 100% perfect for weird media query combinations
-				//  when a module is imported multiple times with different media queries.
-				//  I hope this will never occur (Hey this way we have smaller bundles)
-				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-					if(mediaQuery && !item[2]) {
-						item[2] = mediaQuery;
-					} else if(mediaQuery) {
-						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-					}
-					list.push(item);
-				}
-			}
-		};
-		return list;
-	};
-
-
-/***/ },
-/* 251 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-		MIT License http://www.opensource.org/licenses/mit-license.php
-		Author Tobias Koppers @sokra
-	*/
-	var stylesInDom = {},
-		memoize = function(fn) {
-			var memo;
-			return function () {
-				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-				return memo;
-			};
-		},
-		isOldIE = memoize(function() {
-			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
-		}),
-		getHeadElement = memoize(function () {
-			return document.head || document.getElementsByTagName("head")[0];
-		}),
-		singletonElement = null,
-		singletonCounter = 0,
-		styleElementsInsertedAtTop = [];
-
-	module.exports = function(list, options) {
-		if(false) {
-			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-		}
-
-		options = options || {};
-		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-		// tags it will allow on a page
-		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
-
-		// By default, add <style> tags to the bottom of <head>.
-		if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
-
-		var styles = listToStyles(list);
-		addStylesToDom(styles, options);
-
-		return function update(newList) {
-			var mayRemove = [];
-			for(var i = 0; i < styles.length; i++) {
-				var item = styles[i];
-				var domStyle = stylesInDom[item.id];
-				domStyle.refs--;
-				mayRemove.push(domStyle);
-			}
-			if(newList) {
-				var newStyles = listToStyles(newList);
-				addStylesToDom(newStyles, options);
-			}
-			for(var i = 0; i < mayRemove.length; i++) {
-				var domStyle = mayRemove[i];
-				if(domStyle.refs === 0) {
-					for(var j = 0; j < domStyle.parts.length; j++)
-						domStyle.parts[j]();
-					delete stylesInDom[domStyle.id];
-				}
-			}
-		};
-	}
-
-	function addStylesToDom(styles, options) {
-		for(var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
-			if(domStyle) {
-				domStyle.refs++;
-				for(var j = 0; j < domStyle.parts.length; j++) {
-					domStyle.parts[j](item.parts[j]);
-				}
-				for(; j < item.parts.length; j++) {
-					domStyle.parts.push(addStyle(item.parts[j], options));
-				}
-			} else {
-				var parts = [];
-				for(var j = 0; j < item.parts.length; j++) {
-					parts.push(addStyle(item.parts[j], options));
-				}
-				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-			}
-		}
-	}
-
-	function listToStyles(list) {
-		var styles = [];
-		var newStyles = {};
-		for(var i = 0; i < list.length; i++) {
-			var item = list[i];
-			var id = item[0];
-			var css = item[1];
-			var media = item[2];
-			var sourceMap = item[3];
-			var part = {css: css, media: media, sourceMap: sourceMap};
-			if(!newStyles[id])
-				styles.push(newStyles[id] = {id: id, parts: [part]});
-			else
-				newStyles[id].parts.push(part);
-		}
-		return styles;
-	}
-
-	function insertStyleElement(options, styleElement) {
-		var head = getHeadElement();
-		var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
-		if (options.insertAt === "top") {
-			if(!lastStyleElementInsertedAtTop) {
-				head.insertBefore(styleElement, head.firstChild);
-			} else if(lastStyleElementInsertedAtTop.nextSibling) {
-				head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
-			} else {
-				head.appendChild(styleElement);
-			}
-			styleElementsInsertedAtTop.push(styleElement);
-		} else if (options.insertAt === "bottom") {
-			head.appendChild(styleElement);
-		} else {
-			throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
-		}
-	}
-
-	function removeStyleElement(styleElement) {
-		styleElement.parentNode.removeChild(styleElement);
-		var idx = styleElementsInsertedAtTop.indexOf(styleElement);
-		if(idx >= 0) {
-			styleElementsInsertedAtTop.splice(idx, 1);
-		}
-	}
-
-	function createStyleElement(options) {
-		var styleElement = document.createElement("style");
-		styleElement.type = "text/css";
-		insertStyleElement(options, styleElement);
-		return styleElement;
-	}
-
-	function createLinkElement(options) {
-		var linkElement = document.createElement("link");
-		linkElement.rel = "stylesheet";
-		insertStyleElement(options, linkElement);
-		return linkElement;
-	}
-
-	function addStyle(obj, options) {
-		var styleElement, update, remove;
-
-		if (options.singleton) {
-			var styleIndex = singletonCounter++;
-			styleElement = singletonElement || (singletonElement = createStyleElement(options));
-			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
-			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
-		} else if(obj.sourceMap &&
-			typeof URL === "function" &&
-			typeof URL.createObjectURL === "function" &&
-			typeof URL.revokeObjectURL === "function" &&
-			typeof Blob === "function" &&
-			typeof btoa === "function") {
-			styleElement = createLinkElement(options);
-			update = updateLink.bind(null, styleElement);
-			remove = function() {
-				removeStyleElement(styleElement);
-				if(styleElement.href)
-					URL.revokeObjectURL(styleElement.href);
-			};
-		} else {
-			styleElement = createStyleElement(options);
-			update = applyToTag.bind(null, styleElement);
-			remove = function() {
-				removeStyleElement(styleElement);
-			};
-		}
-
-		update(obj);
-
-		return function updateStyle(newObj) {
-			if(newObj) {
-				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
-					return;
-				update(obj = newObj);
-			} else {
-				remove();
-			}
-		};
-	}
-
-	var replaceText = (function () {
-		var textStore = [];
-
-		return function (index, replacement) {
-			textStore[index] = replacement;
-			return textStore.filter(Boolean).join('\n');
-		};
-	})();
-
-	function applyToSingletonTag(styleElement, index, remove, obj) {
-		var css = remove ? "" : obj.css;
-
-		if (styleElement.styleSheet) {
-			styleElement.styleSheet.cssText = replaceText(index, css);
-		} else {
-			var cssNode = document.createTextNode(css);
-			var childNodes = styleElement.childNodes;
-			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
-			if (childNodes.length) {
-				styleElement.insertBefore(cssNode, childNodes[index]);
-			} else {
-				styleElement.appendChild(cssNode);
-			}
-		}
-	}
-
-	function applyToTag(styleElement, obj) {
-		var css = obj.css;
-		var media = obj.media;
-
-		if(media) {
-			styleElement.setAttribute("media", media)
-		}
-
-		if(styleElement.styleSheet) {
-			styleElement.styleSheet.cssText = css;
-		} else {
-			while(styleElement.firstChild) {
-				styleElement.removeChild(styleElement.firstChild);
-			}
-			styleElement.appendChild(document.createTextNode(css));
-		}
-	}
-
-	function updateLink(linkElement, obj) {
-		var css = obj.css;
-		var sourceMap = obj.sourceMap;
-
-		if(sourceMap) {
-			// http://stackoverflow.com/a/26603875
-			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-		}
-
-		var blob = new Blob([css], { type: "text/css" });
-
-		var oldSrc = linkElement.href;
-
-		linkElement.href = URL.createObjectURL(blob);
-
-		if(oldSrc)
-			URL.revokeObjectURL(oldSrc);
-	}
-
-
-/***/ },
-/* 252 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -28792,7 +28181,7 @@
 	exports.default = ChartLegend;
 
 /***/ },
-/* 253 */
+/* 246 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28801,11 +28190,11 @@
 		value: true
 	});
 
-	var _chart = __webpack_require__(254);
+	var _chart = __webpack_require__(247);
 
 	var _chart2 = _interopRequireDefault(_chart);
 
-	var _reactChartjs = __webpack_require__(256);
+	var _reactChartjs = __webpack_require__(249);
 
 	var _react = __webpack_require__(2);
 
@@ -28850,7 +28239,7 @@
 	exports.default = MyChart;
 
 /***/ },
-/* 254 */
+/* 247 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -29164,7 +28553,7 @@
 				//Method for warning of errors
 				if (window.console && typeof window.console.warn === "function") console.warn(str);
 			},
-			amd = helpers.amd = ("function" === 'function' && __webpack_require__(255)),
+			amd = helpers.amd = ("function" === 'function' && __webpack_require__(248)),
 			//-- Math methods
 			isNumber = helpers.isNumber = function(n){
 				return !isNaN(parseFloat(n)) && isFinite(n);
@@ -32592,7 +31981,7 @@
 
 
 /***/ },
-/* 255 */
+/* 248 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
@@ -32600,31 +31989,31 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ },
-/* 256 */
+/* 249 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = {
-	  Bar: __webpack_require__(257),
-	  Doughnut: __webpack_require__(259),
-	  Line: __webpack_require__(260),
-	  Pie: __webpack_require__(261),
-	  PolarArea: __webpack_require__(262),
-	  Radar: __webpack_require__(263),
-	  createClass: __webpack_require__(258).createClass
+	  Bar: __webpack_require__(250),
+	  Doughnut: __webpack_require__(252),
+	  Line: __webpack_require__(253),
+	  Pie: __webpack_require__(254),
+	  PolarArea: __webpack_require__(255),
+	  Radar: __webpack_require__(256),
+	  createClass: __webpack_require__(251).createClass
 	};
 
 
 /***/ },
-/* 257 */
+/* 250 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(258);
+	var vars = __webpack_require__(251);
 
 	module.exports = vars.createClass('Bar', ['getBarsAtEvent']);
 
 
 /***/ },
-/* 258 */
+/* 251 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(2);
@@ -32687,7 +32076,7 @@
 	    };
 
 	    classData.initializeChart = function(nextProps) {
-	      var Chart = __webpack_require__(254);
+	      var Chart = __webpack_require__(247);
 	      var el = ReactDOM.findDOMNode(this);
 	      var ctx = el.getContext("2d");
 	      var chart = new Chart(ctx)[chartType](nextProps.data, nextProps.options || {});
@@ -32778,48 +32167,688 @@
 
 
 /***/ },
-/* 259 */
+/* 252 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(258);
+	var vars = __webpack_require__(251);
 
 	module.exports = vars.createClass('Doughnut', ['getSegmentsAtEvent']);
 
 
 /***/ },
-/* 260 */
+/* 253 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(258);
+	var vars = __webpack_require__(251);
 
 	module.exports = vars.createClass('Line', ['getPointsAtEvent']);
 
 
 /***/ },
-/* 261 */
+/* 254 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(258);
+	var vars = __webpack_require__(251);
 
 	module.exports = vars.createClass('Pie', ['getSegmentsAtEvent']);
 
 
 /***/ },
-/* 262 */
+/* 255 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(258);
+	var vars = __webpack_require__(251);
 
 	module.exports = vars.createClass('PolarArea', ['getSegmentsAtEvent']);
+
+
+/***/ },
+/* 256 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var vars = __webpack_require__(251);
+
+	module.exports = vars.createClass('Radar', ['getPointsAtEvent']);
+
+
+/***/ },
+/* 257 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var VotingInterface = _react2.default.createClass({
+		displayName: 'VotingInterface',
+
+		getInitialState: function getInitialState() {
+			return {
+				addingOption: false,
+				selectedOption: '',
+				newOption: ''
+			};
+		},
+		selectOption: function selectOption(event) {
+			this.setState({
+				selectedOption: event.target.value
+			});
+		},
+		updateNewOption: function updateNewOption(event) {
+			this.setState({
+				newOption: event.target.value
+			});
+		},
+		getOptions: function getOptions() {
+			var self = this;
+			// get options from props and render them properly
+			var styledOptions = this.props.pollOptions.map(function (option, i) {
+				return _react2.default.createElement(
+					'div',
+					{ className: 'option', key: i },
+					_react2.default.createElement(
+						'label',
+						null,
+						_react2.default.createElement('input', { type: 'radio', name: 'user-choice', value: i, onClick: self.selectOption }),
+						option.name
+					)
+				);
+			});
+			return _react2.default.createElement(
+				'div',
+				null,
+				styledOptions
+			);
+		},
+		sendVote: function sendVote() {
+			// send vote to server
+			var self = this;
+			$.ajax({
+				url: '/vote?pollId=' + self.props.pollId + '&vote=' + self.state.selectedOption,
+				success: function success(response) {
+					console.log(response);
+					if (response.result === 'success') {
+						// if user voted successfuly, update options state in Poll component
+						self.props.updateOptions(response.pollOptions);
+					} else {
+						// if vote failed, show error message
+						alert('This account or IP address has already voted');
+					}
+				}
+			});
+		},
+		sendNewOption: function sendNewOption() {
+			// send new option to server
+			var self = this;
+			$.ajax({
+				url: '/add-option?pollId=' + self.props.pollId + '&newOption=' + self.state.newOption,
+				success: function success(response) {
+					// update options state in Poll component when done
+					self.props.updateOptions(response.pollOptions);
+					self.toggleAdding();
+				}
+			});
+		},
+		toggleAdding: function toggleAdding() {
+			this.setState({
+				addingOption: !this.state.addingOption
+			});
+		},
+		renderAdding: function renderAdding() {
+			return _react2.default.createElement(
+				'div',
+				{ className: 'voting-interface' },
+				_react2.default.createElement(
+					'div',
+					{ className: 'vote-form' },
+					this.getOptions()
+				),
+				_react2.default.createElement(
+					'div',
+					{ className: 'new-option' },
+					_react2.default.createElement(
+						'div',
+						{ className: 'new-option-form' },
+						_react2.default.createElement('input', { type: 'text', name: 'new-option', placeholder: 'New Option', onChange: this.updateNewOption }),
+						_react2.default.createElement(
+							'button',
+							{ type: 'submit', className: 'add-new', onClick: this.sendNewOption },
+							'Add'
+						),
+						_react2.default.createElement(
+							'button',
+							{ type: 'button', className: 'cancel-new', onClick: this.toggleAdding },
+							'Cancel'
+						)
+					)
+				)
+			);
+		},
+		renderDefault: function renderDefault() {
+			return _react2.default.createElement(
+				'div',
+				{ className: 'voting-interface' },
+				_react2.default.createElement(
+					'div',
+					{ className: 'vote-form' },
+					this.getOptions(),
+					_react2.default.createElement(
+						'div',
+						{ className: 'init-new-option', onClick: this.toggleAdding },
+						'Or add your own option...'
+					),
+					_react2.default.createElement(
+						'button',
+						{ className: 'vote-button', type: 'submit', onClick: this.sendVote },
+						'Vote!'
+					)
+				)
+			);
+		},
+		render: function render() {
+			if (this.state.addingOption) {
+				return this.renderAdding();
+			} else {
+				return this.renderDefault();
+			}
+		}
+	});
+
+	exports.default = VotingInterface;
+
+/***/ },
+/* 258 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _reactRouter = __webpack_require__(35);
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var RecentPolls = _react2.default.createClass({
+		displayName: 'RecentPolls',
+
+		getInitialState: function getInitialState() {
+			return {
+				polls: []
+			};
+		},
+		componentDidMount: function componentDidMount() {
+			// send request for recent polls
+			var self = this;
+			$.ajax('/recent-polls').done(function (response) {
+				self.setState({
+					// add recent polls to polls state
+					polls: self.state.polls.concat(JSON.parse(response))
+				});
+			});
+		},
+		render: function render() {
+			return _react2.default.createElement(
+				'div',
+				{ className: 'main-container' },
+				_react2.default.createElement(
+					'div',
+					{ className: 'title' },
+					'Create and participate in polls'
+				),
+				_react2.default.createElement(
+					'div',
+					{ className: 'polls-holder' },
+					this.state.polls.map(function (poll, i) {
+						return _react2.default.createElement(
+							'div',
+							{ className: 'poll', key: i },
+							_react2.default.createElement(
+								_reactRouter.IndexLink,
+								{ to: '/polls/' + poll['_id'] },
+								poll.title
+							)
+						);
+					})
+				)
+			);
+		}
+	});
+
+	exports.default = RecentPolls;
+
+/***/ },
+/* 259 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _reactRouter = __webpack_require__(35);
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var UserPolls = _react2.default.createClass({
+		displayName: 'UserPolls',
+
+		getInitialState: function getInitialState() {
+			return {
+				userId: '',
+				userName: '',
+				polls: []
+			};
+		},
+		componentDidMount: function componentDidMount() {
+			// send request for user's polls
+			var self = this;
+			$.ajax('/user-polls/' + self.props.params.user).done(function (response) {
+				var response = JSON.parse(response);
+				self.setState({
+					// add recent polls to polls state
+					userId: self.props.params.user,
+					userName: response[0].author.name,
+					polls: self.state.polls.concat(response)
+				});
+			});
+		},
+		render: function render() {
+			return _react2.default.createElement(
+				'div',
+				{ className: 'main-container' },
+				_react2.default.createElement(
+					'div',
+					{ className: 'title' },
+					'Here are ',
+					this.state.userName,
+					'\'s polls'
+				),
+				_react2.default.createElement(
+					'div',
+					{ className: 'polls-holder' },
+					this.state.polls.map(function (poll, i) {
+						return _react2.default.createElement(
+							'div',
+							{ className: 'poll', key: i },
+							_react2.default.createElement(
+								_reactRouter.IndexLink,
+								{ to: '/polls/' + poll['_id'] },
+								poll.title
+							)
+						);
+					})
+				)
+			);
+		}
+	});
+
+	exports.default = UserPolls;
+
+/***/ },
+/* 260 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(261);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(263)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./style.sass", function() {
+				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./style.sass");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 261 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(262)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "footer {\n  display: flex;\n  width: 100%;\n  background-color: #b0bec5;\n  justify-content: center;\n  align-items: center;\n  height: 5em; }\n  footer .info-container {\n    width: 95%;\n    display: flex;\n    justify-content: space-between;\n    align-items: center; }\n    footer .info-container .text-container {\n      display: flex;\n      flex-direction: column;\n      font-size: 0.9rem; }\n      footer .info-container .text-container .source a, footer .info-container .text-container .signature a {\n        text-decoration: none;\n        color: #f5f5f5;\n        transition: color 250ms ease; }\n      footer .info-container .text-container .source a:hover, footer .info-container .text-container .signature a:hover {\n        color: #fff; }\n    footer .info-container .icons-container {\n      display: flex;\n      justify-content: space-between; }\n      footer .info-container .icons-container .icon + .icon {\n        margin-left: 1.5rem; }\n      footer .info-container .icons-container .icon {\n        display: flex;\n        justify-content: center;\n        align-items: center; }\n        footer .info-container .icons-container .icon .linkedin-svg, footer .info-container .icons-container .icon .github-svg, footer .info-container .icons-container .icon .link-svg {\n          fill: #6f7476;\n          transition: 0.35s ease all;\n          height: 2rem;\n          width: 2rem; }\n          @media (min-width: 700px) {\n            footer .info-container .icons-container .icon .linkedin-svg, footer .info-container .icons-container .icon .github-svg, footer .info-container .icons-container .icon .link-svg {\n              height: 2.5rem;\n              width: 2.5rem; } }\n        footer .info-container .icons-container .icon .linkedin-svg:hover, footer .info-container .icons-container .icon .github-svg:hover, footer .info-container .icons-container .icon .link-svg:hover {\n          fill: #515556; }\n\n.navbar-container {\n  width: 100%;\n  background-color: #fff;\n  color: #777;\n  position: fixed;\n  top: 0;\n  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);\n  transition: box-shadow 250ms ease;\n  font-weight: 500;\n  font-size: 0.875rem;\n  text-transform: uppercase;\n  display: flex;\n  justify-content: center;\n  z-index: 1; }\n  .navbar-container .navbar {\n    width: 95%;\n    display: flex;\n    justify-content: space-between; }\n    .navbar-container .navbar .destination:hover {\n      color: brown; }\n    .navbar-container .navbar .destination {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      position: relative;\n      transition: color 250ms ease; }\n      .navbar-container .navbar .destination .logo-holder {\n        width: auto; }\n      .navbar-container .navbar .destination > a {\n        text-decoration: none;\n        color: #777;\n        height: 4.5rem;\n        width: 6rem;\n        display: flex;\n        align-items: center;\n        justify-content: center; }\n        .navbar-container .navbar .destination > a .logo {\n          fill: #e94f28;\n          transition: fill 250ms ease;\n          margin-right: 0.15rem;\n          height: 3.75rem;\n          width: auto; }\n        .navbar-container .navbar .destination > a .logo-name {\n          color: #e94f28;\n          transition: color 250ms ease;\n          text-transform: none;\n          font-size: 1.25rem;\n          font-family: 'Comfortaa'; }\n      .navbar-container .navbar .destination a:hover .logo {\n        fill: darkorange; }\n      .navbar-container .navbar .destination a:hover .logo-name {\n        color: darkorange; }\n      .navbar-container .navbar .destination .user-interface {\n        cursor: pointer;\n        display: flex;\n        height: 4.5rem; }\n        .navbar-container .navbar .destination .user-interface .user-info {\n          display: flex;\n          align-items: center; }\n          .navbar-container .navbar .destination .user-interface .user-info .user-image {\n            border-radius: 0.1rem; }\n        .navbar-container .navbar .destination .user-interface .dropdown-arrow {\n          position: absolute;\n          height: 0;\n          width: 0;\n          top: 4.5rem;\n          right: calc(50% - 0.5rem);\n          z-index: 2; }\n        .navbar-container .navbar .destination .user-interface .dropdown-arrow-shadow {\n          position: absolute;\n          height: 0;\n          width: 0;\n          top: 4.44rem;\n          right: calc(50% - 0.5rem); }\n        .navbar-container .navbar .destination .user-interface .dropdown {\n          position: absolute;\n          top: 5rem;\n          right: 0;\n          display: flex;\n          min-width: 9rem; }\n          .navbar-container .navbar .destination .user-interface .dropdown a, .navbar-container .navbar .destination .user-interface .dropdown .username {\n            display: none; }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow-shadow {\n        border-left: 0.5rem solid transparent;\n        border-right: 0.5rem solid transparent;\n        border-bottom: 0.5rem solid rgba(0, 0, 0, 0.2); }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow {\n        border-left: 0.5rem solid transparent;\n        border-right: 0.5rem solid transparent;\n        border-bottom: 0.5rem solid #fff; }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow, .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow-shadow, .navbar-container .navbar .destination .user-interface.triggered .dropdown > a, .navbar-container .navbar .destination .user-interface.triggered .username {\n        opacity: 0;\n        animation-name: menu1;\n        animation-duration: 150ms;\n        animation-timing-function: ease-in-out;\n        animation-fill-mode: forwards; }\n\n@keyframes menu1 {\n  0% {\n    opacity: 0; }\n  100% {\n    opacity: 1; } }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown {\n        display: flex;\n        flex-direction: column;\n        height: 13.5rem;\n        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2); }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown a, .navbar-container .navbar .destination .user-interface.triggered .dropdown .username {\n          height: 4.5rem;\n          background-color: #fff;\n          width: 100%;\n          display: flex;\n          justify-content: center;\n          position: relative;\n          text-decoration: none;\n          color: #777;\n          align-items: center;\n          transition: background-color 250ms ease; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown a:hover {\n          background-color: #eee; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown .username {\n          cursor: default; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown .username:after {\n          content: '';\n          position: absolute;\n          width: 50%;\n          left: 25%;\n          bottom: 0%;\n          border-bottom: 1px solid rgba(0, 0, 0, 0.2); }\n      .navbar-container .navbar .destination .sign-in {\n        background-color: #e94f28;\n        transition: background-color 250ms ease;\n        border-radius: 0.1rem; }\n        .navbar-container .navbar .destination .sign-in a {\n          text-decoration: none;\n          color: #fff;\n          height: 2.75rem;\n          width: 6.5rem;\n          display: flex;\n          align-items: center;\n          justify-content: center;\n          cursor: pointer; }\n      .navbar-container .navbar .destination .sign-in:hover {\n        background-color: darkorange; }\n\nfooter {\n  display: flex;\n  width: 100%;\n  background-color: #b0bec5;\n  justify-content: center;\n  align-items: center;\n  height: 5em; }\n  footer .info-container {\n    width: 95%;\n    display: flex;\n    justify-content: space-between;\n    align-items: center; }\n    footer .info-container .text-container {\n      display: flex;\n      flex-direction: column;\n      font-size: 0.9rem; }\n      footer .info-container .text-container .source a, footer .info-container .text-container .signature a {\n        text-decoration: none;\n        color: #f5f5f5;\n        transition: color 250ms ease; }\n      footer .info-container .text-container .source a:hover, footer .info-container .text-container .signature a:hover {\n        color: #fff; }\n    footer .info-container .icons-container {\n      display: flex;\n      justify-content: space-between; }\n      footer .info-container .icons-container .icon + .icon {\n        margin-left: 1.5rem; }\n      footer .info-container .icons-container .icon {\n        display: flex;\n        justify-content: center;\n        align-items: center; }\n        footer .info-container .icons-container .icon .linkedin-svg, footer .info-container .icons-container .icon .github-svg, footer .info-container .icons-container .icon .link-svg {\n          fill: #6f7476;\n          transition: 0.35s ease all;\n          height: 2rem;\n          width: 2rem; }\n          @media (min-width: 700px) {\n            footer .info-container .icons-container .icon .linkedin-svg, footer .info-container .icons-container .icon .github-svg, footer .info-container .icons-container .icon .link-svg {\n              height: 2.5rem;\n              width: 2.5rem; } }\n        footer .info-container .icons-container .icon .linkedin-svg:hover, footer .info-container .icons-container .icon .github-svg:hover, footer .info-container .icons-container .icon .link-svg:hover {\n          fill: #515556; }\n\n.navbar-container {\n  width: 100%;\n  background-color: #fff;\n  color: #777;\n  position: fixed;\n  top: 0;\n  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);\n  transition: box-shadow 250ms ease;\n  font-weight: 500;\n  font-size: 0.875rem;\n  text-transform: uppercase;\n  display: flex;\n  justify-content: center;\n  z-index: 1; }\n  .navbar-container .navbar {\n    width: 95%;\n    display: flex;\n    justify-content: space-between; }\n    .navbar-container .navbar .destination:hover {\n      color: brown; }\n    .navbar-container .navbar .destination {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      position: relative;\n      transition: color 250ms ease; }\n      .navbar-container .navbar .destination .logo-holder {\n        width: auto; }\n      .navbar-container .navbar .destination > a {\n        text-decoration: none;\n        color: #777;\n        height: 4.5rem;\n        width: 6rem;\n        display: flex;\n        align-items: center;\n        justify-content: center; }\n        .navbar-container .navbar .destination > a .logo {\n          fill: #e94f28;\n          transition: fill 250ms ease;\n          margin-right: 0.15rem;\n          height: 3.75rem;\n          width: auto; }\n        .navbar-container .navbar .destination > a .logo-name {\n          color: #e94f28;\n          transition: color 250ms ease;\n          text-transform: none;\n          font-size: 1.25rem;\n          font-family: 'Comfortaa'; }\n      .navbar-container .navbar .destination a:hover .logo {\n        fill: darkorange; }\n      .navbar-container .navbar .destination a:hover .logo-name {\n        color: darkorange; }\n      .navbar-container .navbar .destination .user-interface {\n        cursor: pointer;\n        display: flex;\n        height: 4.5rem; }\n        .navbar-container .navbar .destination .user-interface .user-info {\n          display: flex;\n          align-items: center; }\n          .navbar-container .navbar .destination .user-interface .user-info .user-image {\n            border-radius: 0.1rem; }\n        .navbar-container .navbar .destination .user-interface .dropdown-arrow {\n          position: absolute;\n          height: 0;\n          width: 0;\n          top: 4.5rem;\n          right: calc(50% - 0.5rem);\n          z-index: 2; }\n        .navbar-container .navbar .destination .user-interface .dropdown-arrow-shadow {\n          position: absolute;\n          height: 0;\n          width: 0;\n          top: 4.44rem;\n          right: calc(50% - 0.5rem); }\n        .navbar-container .navbar .destination .user-interface .dropdown {\n          position: absolute;\n          top: 5rem;\n          right: 0;\n          display: flex;\n          min-width: 9rem; }\n          .navbar-container .navbar .destination .user-interface .dropdown a, .navbar-container .navbar .destination .user-interface .dropdown .username {\n            display: none; }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow-shadow {\n        border-left: 0.5rem solid transparent;\n        border-right: 0.5rem solid transparent;\n        border-bottom: 0.5rem solid rgba(0, 0, 0, 0.2); }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow {\n        border-left: 0.5rem solid transparent;\n        border-right: 0.5rem solid transparent;\n        border-bottom: 0.5rem solid #fff; }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow, .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow-shadow, .navbar-container .navbar .destination .user-interface.triggered .dropdown > a, .navbar-container .navbar .destination .user-interface.triggered .username {\n        opacity: 0;\n        animation-name: menu1;\n        animation-duration: 150ms;\n        animation-timing-function: ease-in-out;\n        animation-fill-mode: forwards; }\n\n@keyframes menu1 {\n  0% {\n    opacity: 0; }\n  100% {\n    opacity: 1; } }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown {\n        display: flex;\n        flex-direction: column;\n        height: 13.5rem;\n        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2); }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown a, .navbar-container .navbar .destination .user-interface.triggered .dropdown .username {\n          height: 4.5rem;\n          background-color: #fff;\n          width: 100%;\n          display: flex;\n          justify-content: center;\n          position: relative;\n          text-decoration: none;\n          color: #777;\n          align-items: center;\n          transition: background-color 250ms ease; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown a:hover {\n          background-color: #eee; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown .username {\n          cursor: default; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown .username:after {\n          content: '';\n          position: absolute;\n          width: 50%;\n          left: 25%;\n          bottom: 0%;\n          border-bottom: 1px solid rgba(0, 0, 0, 0.2); }\n      .navbar-container .navbar .destination .sign-in {\n        background-color: #e94f28;\n        transition: background-color 250ms ease;\n        border-radius: 0.1rem; }\n        .navbar-container .navbar .destination .sign-in a {\n          text-decoration: none;\n          color: #fff;\n          height: 2.75rem;\n          width: 6.5rem;\n          display: flex;\n          align-items: center;\n          justify-content: center;\n          cursor: pointer; }\n      .navbar-container .navbar .destination .sign-in:hover {\n        background-color: darkorange; }\n\nhtml, body {\n  margin: 0;\n  padding: 0;\n  background-color: #f5f5f5;\n  font-family: 'Roboto', Helvetica, Arial;\n  height: 100%;\n  font-weight: 300; }\n  html #app, body #app {\n    height: 100%; }\n    html #app > div, body #app > div {\n      display: flex;\n      flex-direction: column;\n      min-height: 100%; }\n      html #app > div .poll-main-container, body #app > div .poll-main-container {\n        display: flex;\n        align-items: center;\n        flex-direction: column;\n        margin-top: 8rem;\n        flex: 1;\n        width: 100%; }\n        html #app > div .poll-main-container .poll-outline, body #app > div .poll-main-container .poll-outline {\n          display: flex;\n          justify-content: center;\n          width: 80%;\n          background-color: #fff;\n          padding-top: 2em;\n          padding-bottom: 2em;\n          margin-bottom: 4em;\n          box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.4); }\n          html #app > div .poll-main-container .poll-outline .poll-holder, body #app > div .poll-main-container .poll-outline .poll-holder {\n            display: flex;\n            flex-direction: column;\n            align-items: center;\n            justify-content: space-between;\n            width: 85%; }\n            @media (min-width: 1200px) {\n              html #app > div .poll-main-container .poll-outline .poll-holder, body #app > div .poll-main-container .poll-outline .poll-holder {\n                flex-direction: row; } }\n            html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface {\n              max-width: 65%;\n              display: flex;\n              flex-direction: column; }\n              html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .poll-title, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .poll-title {\n                font-size: 2.75rem; }\n              html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .poll-author a, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .poll-author a {\n                color: #000; }\n              html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface {\n                margin-left: 1rem;\n                margin-top: 0.5rem; }\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form {\n                  display: flex;\n                  flex-direction: column; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .option, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .option {\n                    margin-top: 1rem;\n                    font-size: 1.2rem; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .init-new-option, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .init-new-option {\n                    color: #000;\n                    cursor: pointer;\n                    margin-top: 1rem;\n                    margin-left: 1.5rem;\n                    transition: color 250ms ease; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .init-new-option:hover, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .init-new-option:hover {\n                    color: #222; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .vote-button, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .vote-button {\n                    font-size: 1.2rem;\n                    border-radius: 2px;\n                    font-family: 'Roboto';\n                    font-weight: 300;\n                    margin-top: 1.25rem;\n                    background-color: darkgreen;\n                    border: none;\n                    color: #fff;\n                    height: 2.5rem;\n                    width: 6rem;\n                    cursor: pointer;\n                    align-self: center;\n                    transition: background-color 250ms ease; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .vote-button:hover, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .vote-form .vote-button:hover {\n                    background-color: green; }\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option {\n                  margin-top: 1rem;\n                  display: flex; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form {\n                    display: flex; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form button, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form button {\n                      margin-left: 0.2rem; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form input, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form input {\n                      height: 1.65rem;\n                      padding-left: 0.25rem; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .add-new, html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .cancel-new, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .add-new, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .cancel-new {\n                      height: 2rem;\n                      width: 6rem;\n                      border-radius: 2px;\n                      font-family: 'Roboto';\n                      font-weight: 300;\n                      border: none;\n                      color: #fff;\n                      cursor: pointer; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .add-new, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .add-new {\n                      background-color: darkgreen;\n                      transition: background-color 250ms ease; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .add-new:hover, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .add-new:hover {\n                      background-color: green; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .cancel-new, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .cancel-new {\n                      background-color: #fff;\n                      border: 1px solid #333;\n                      color: #333;\n                      transition: background-color 250ms ease, color 250ms ease; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .cancel-new:hover, body #app > div .poll-main-container .poll-outline .poll-holder .poll-interface .voting-interface .new-option .new-option-form .cancel-new:hover {\n                      background-color: #333;\n                      color: #fff; }\n            html #app > div .poll-main-container .poll-outline .poll-holder .poll-results, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results {\n              display: flex;\n              flex-direction: column;\n              align-items: center;\n              justify-content: center;\n              margin-top: 3rem;\n              max-width: 65%; }\n              @media (min-width: 1200px) {\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-results, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results {\n                  margin-top: 0; } }\n              html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .delete-container, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .delete-container {\n                margin-top: 1rem;\n                display: flex;\n                align-self: center;\n                height: 3rem;\n                width: 8rem;\n                order: 5; }\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .delete-container .delete-button, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .delete-container .delete-button {\n                  background-color: #fff;\n                  color: brown;\n                  border: 1px solid brown;\n                  border-radius: 2px;\n                  text-decoration: none;\n                  height: 100%;\n                  width: 100%;\n                  display: flex;\n                  justify-content: center;\n                  align-items: center;\n                  cursor: pointer;\n                  transition: color 250ms ease, background-color 250ms ease; }\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .delete-container .delete-button:hover, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .delete-container .delete-button:hover {\n                  background-color: brown;\n                  color: #fff; }\n              html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .chart-container, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .chart-container {\n                display: flex;\n                flex-direction: column;\n                align-items: center;\n                justify-content: center; }\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .chart-container canvas, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .chart-container canvas {\n                  width: 100% !important; }\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .chart-container .results-placeholder, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .chart-container .results-placeholder {\n                  display: flex;\n                  justify-content: center; }\n                html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .chart-container .legend, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .chart-container .legend {\n                  display: flex;\n                  flex-wrap: wrap;\n                  max-width: 400px;\n                  justify-content: center; }\n                  html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .chart-container .legend .legend-item, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .chart-container .legend .legend-item {\n                    display: flex;\n                    align-items: center;\n                    font-size: 0.9rem;\n                    color: #444;\n                    margin-bottom: 10px; }\n                    html #app > div .poll-main-container .poll-outline .poll-holder .poll-results .chart-container .legend .legend-item .legend-color, body #app > div .poll-main-container .poll-outline .poll-holder .poll-results .chart-container .legend .legend-item .legend-color {\n                      height: 13px;\n                      width: 45px;\n                      margin-right: 7px;\n                      margin-left: 7px; }\n\nfooter {\n  display: flex;\n  width: 100%;\n  background-color: #b0bec5;\n  justify-content: center;\n  align-items: center;\n  height: 5em; }\n  footer .info-container {\n    width: 95%;\n    display: flex;\n    justify-content: space-between;\n    align-items: center; }\n    footer .info-container .text-container {\n      display: flex;\n      flex-direction: column;\n      font-size: 0.9rem; }\n      footer .info-container .text-container .source a, footer .info-container .text-container .signature a {\n        text-decoration: none;\n        color: #f5f5f5;\n        transition: color 250ms ease; }\n      footer .info-container .text-container .source a:hover, footer .info-container .text-container .signature a:hover {\n        color: #fff; }\n    footer .info-container .icons-container {\n      display: flex;\n      justify-content: space-between; }\n      footer .info-container .icons-container .icon + .icon {\n        margin-left: 1.5rem; }\n      footer .info-container .icons-container .icon {\n        display: flex;\n        justify-content: center;\n        align-items: center; }\n        footer .info-container .icons-container .icon .linkedin-svg, footer .info-container .icons-container .icon .github-svg, footer .info-container .icons-container .icon .link-svg {\n          fill: #6f7476;\n          transition: 0.35s ease all;\n          height: 2rem;\n          width: 2rem; }\n          @media (min-width: 700px) {\n            footer .info-container .icons-container .icon .linkedin-svg, footer .info-container .icons-container .icon .github-svg, footer .info-container .icons-container .icon .link-svg {\n              height: 2.5rem;\n              width: 2.5rem; } }\n        footer .info-container .icons-container .icon .linkedin-svg:hover, footer .info-container .icons-container .icon .github-svg:hover, footer .info-container .icons-container .icon .link-svg:hover {\n          fill: #515556; }\n\n.navbar-container {\n  width: 100%;\n  background-color: #fff;\n  color: #777;\n  position: fixed;\n  top: 0;\n  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);\n  transition: box-shadow 250ms ease;\n  font-weight: 500;\n  font-size: 0.875rem;\n  text-transform: uppercase;\n  display: flex;\n  justify-content: center;\n  z-index: 1; }\n  .navbar-container .navbar {\n    width: 95%;\n    display: flex;\n    justify-content: space-between; }\n    .navbar-container .navbar .destination:hover {\n      color: brown; }\n    .navbar-container .navbar .destination {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      position: relative;\n      transition: color 250ms ease; }\n      .navbar-container .navbar .destination .logo-holder {\n        width: auto; }\n      .navbar-container .navbar .destination > a {\n        text-decoration: none;\n        color: #777;\n        height: 4.5rem;\n        width: 6rem;\n        display: flex;\n        align-items: center;\n        justify-content: center; }\n        .navbar-container .navbar .destination > a .logo {\n          fill: #e94f28;\n          transition: fill 250ms ease;\n          margin-right: 0.15rem;\n          height: 3.75rem;\n          width: auto; }\n        .navbar-container .navbar .destination > a .logo-name {\n          color: #e94f28;\n          transition: color 250ms ease;\n          text-transform: none;\n          font-size: 1.25rem;\n          font-family: 'Comfortaa'; }\n      .navbar-container .navbar .destination a:hover .logo {\n        fill: darkorange; }\n      .navbar-container .navbar .destination a:hover .logo-name {\n        color: darkorange; }\n      .navbar-container .navbar .destination .user-interface {\n        cursor: pointer;\n        display: flex;\n        height: 4.5rem; }\n        .navbar-container .navbar .destination .user-interface .user-info {\n          display: flex;\n          align-items: center; }\n          .navbar-container .navbar .destination .user-interface .user-info .user-image {\n            border-radius: 0.1rem; }\n        .navbar-container .navbar .destination .user-interface .dropdown-arrow {\n          position: absolute;\n          height: 0;\n          width: 0;\n          top: 4.5rem;\n          right: calc(50% - 0.5rem);\n          z-index: 2; }\n        .navbar-container .navbar .destination .user-interface .dropdown-arrow-shadow {\n          position: absolute;\n          height: 0;\n          width: 0;\n          top: 4.44rem;\n          right: calc(50% - 0.5rem); }\n        .navbar-container .navbar .destination .user-interface .dropdown {\n          position: absolute;\n          top: 5rem;\n          right: 0;\n          display: flex;\n          min-width: 9rem; }\n          .navbar-container .navbar .destination .user-interface .dropdown a, .navbar-container .navbar .destination .user-interface .dropdown .username {\n            display: none; }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow-shadow {\n        border-left: 0.5rem solid transparent;\n        border-right: 0.5rem solid transparent;\n        border-bottom: 0.5rem solid rgba(0, 0, 0, 0.2); }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow {\n        border-left: 0.5rem solid transparent;\n        border-right: 0.5rem solid transparent;\n        border-bottom: 0.5rem solid #fff; }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow, .navbar-container .navbar .destination .user-interface.triggered .dropdown-arrow-shadow, .navbar-container .navbar .destination .user-interface.triggered .dropdown > a, .navbar-container .navbar .destination .user-interface.triggered .username {\n        opacity: 0;\n        animation-name: menu1;\n        animation-duration: 150ms;\n        animation-timing-function: ease-in-out;\n        animation-fill-mode: forwards; }\n\n@keyframes menu1 {\n  0% {\n    opacity: 0; }\n  100% {\n    opacity: 1; } }\n      .navbar-container .navbar .destination .user-interface.triggered .dropdown {\n        display: flex;\n        flex-direction: column;\n        height: 13.5rem;\n        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2); }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown a, .navbar-container .navbar .destination .user-interface.triggered .dropdown .username {\n          height: 4.5rem;\n          background-color: #fff;\n          width: 100%;\n          display: flex;\n          justify-content: center;\n          position: relative;\n          text-decoration: none;\n          color: #777;\n          align-items: center;\n          transition: background-color 250ms ease; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown a:hover {\n          background-color: #eee; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown .username {\n          cursor: default; }\n        .navbar-container .navbar .destination .user-interface.triggered .dropdown .username:after {\n          content: '';\n          position: absolute;\n          width: 50%;\n          left: 25%;\n          bottom: 0%;\n          border-bottom: 1px solid rgba(0, 0, 0, 0.2); }\n      .navbar-container .navbar .destination .sign-in {\n        background-color: #e94f28;\n        transition: background-color 250ms ease;\n        border-radius: 0.1rem; }\n        .navbar-container .navbar .destination .sign-in a {\n          text-decoration: none;\n          color: #fff;\n          height: 2.75rem;\n          width: 6.5rem;\n          display: flex;\n          align-items: center;\n          justify-content: center;\n          cursor: pointer; }\n      .navbar-container .navbar .destination .sign-in:hover {\n        background-color: darkorange; }\n\nhtml, body {\n  margin: 0;\n  padding: 0;\n  background-color: #f5f5f5;\n  font-family: 'Roboto', Helvetica, Arial;\n  height: 100%;\n  font-weight: 300; }\n  html #app, body #app {\n    height: 100%; }\n    html #app > div, body #app > div {\n      display: flex;\n      flex-direction: column;\n      min-height: 100%; }\n      html #app > div .new-poll-main-container, body #app > div .new-poll-main-container {\n        display: flex;\n        justify-content: center;\n        width: 100%;\n        flex: 1;\n        margin-top: 8rem; }\n        html #app > div .new-poll-main-container .form-outline, body #app > div .new-poll-main-container .form-outline {\n          height: 100%;\n          width: 80%;\n          max-width: 575px;\n          background-color: #fff;\n          display: flex;\n          justify-content: center;\n          align-items: center;\n          padding-top: 1.5rem;\n          padding-bottom: 2.5rem;\n          margin-bottom: 4rem;\n          box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25); }\n          html #app > div .new-poll-main-container .form-outline .form-holder, body #app > div .new-poll-main-container .form-outline .form-holder {\n            display: flex;\n            flex-direction: column;\n            width: 80%;\n            height: 100%; }\n            html #app > div .new-poll-main-container .form-outline .form-holder .title, body #app > div .new-poll-main-container .form-outline .form-holder .title {\n              font-size: 3em;\n              text-align: center; }\n            html #app > div .new-poll-main-container .form-outline .form-holder .form, body #app > div .new-poll-main-container .form-outline .form-holder .form {\n              margin-top: 1rem;\n              display: flex;\n              flex-direction: column; }\n              html #app > div .new-poll-main-container .form-outline .form-holder .form .poll-title-input, body #app > div .new-poll-main-container .form-outline .form-holder .form .poll-title-input {\n                font-size: 1em; }\n              html #app > div .new-poll-main-container .form-outline .form-holder .form input, body #app > div .new-poll-main-container .form-outline .form-holder .form input {\n                height: 2.5rem;\n                padding-left: 0.25rem;\n                font-weight: 100; }\n              html #app > div .new-poll-main-container .form-outline .form-holder .form .options-holder, body #app > div .new-poll-main-container .form-outline .form-holder .form .options-holder {\n                display: flex;\n                flex-direction: column;\n                margin-top: 1.75rem; }\n                html #app > div .new-poll-main-container .form-outline .form-holder .form .options-holder input, body #app > div .new-poll-main-container .form-outline .form-holder .form .options-holder input {\n                  height: 2.25rem; }\n                html #app > div .new-poll-main-container .form-outline .form-holder .form .options-holder input + input, body #app > div .new-poll-main-container .form-outline .form-holder .form .options-holder input + input {\n                  margin-top: 0.75rem; }\n              html #app > div .new-poll-main-container .form-outline .form-holder .form button, body #app > div .new-poll-main-container .form-outline .form-holder .form button {\n                font-size: 1rem;\n                font-weight: 300;\n                margin-top: 1.5rem;\n                height: 2.75rem;\n                width: 6.5rem;\n                display: flex;\n                align-self: center;\n                justify-content: center;\n                align-items: center;\n                background-color: #e94f28;\n                color: #fff;\n                border: none;\n                cursor: pointer;\n                border-radius: 0.1rem;\n                transition: background-color 250ms ease; }\n              html #app > div .new-poll-main-container .form-outline .form-holder .form button:hover, body #app > div .new-poll-main-container .form-outline .form-holder .form button:hover {\n                background-color: darkorange; }\n\nhtml, body {\n  margin: 0;\n  padding: 0;\n  background-color: #f5f5f5;\n  font-family: 'Roboto', Helvetica, Arial;\n  height: 100%;\n  font-weight: 300; }\n  html #app, body #app {\n    height: 100%; }\n    html #app > div, body #app > div {\n      display: flex;\n      flex-direction: column;\n      min-height: 100%; }\n      html #app > div .main-container, body #app > div .main-container {\n        display: flex;\n        align-items: center;\n        flex-direction: column;\n        margin-top: 8rem;\n        flex: 1;\n        width: 100%; }\n        html #app > div .main-container .title, body #app > div .main-container .title {\n          font-size: 3.5rem; }\n        html #app > div .main-container .polls-holder, body #app > div .main-container .polls-holder {\n          margin-top: 2rem;\n          margin-bottom: 4rem;\n          width: 80%;\n          max-width: 1000px;\n          display: flex;\n          flex-direction: column;\n          align-items: center;\n          background-color: #fff;\n          padding-top: 1rem;\n          padding-bottom: 1rem;\n          border-radius: 2px;\n          box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.4);\n          font-size: 1.2rem; }\n          html #app > div .main-container .polls-holder .poll, body #app > div .main-container .polls-holder .poll {\n            width: 100%;\n            height: 4rem;\n            display: flex;\n            position: relative; }\n            html #app > div .main-container .polls-holder .poll a, body #app > div .main-container .polls-holder .poll a {\n              height: 100%;\n              width: 100%;\n              display: flex;\n              justify-content: center;\n              align-items: center;\n              text-decoration: none;\n              color: #000;\n              background-color: #fff; }\n            html #app > div .main-container .polls-holder .poll a:hover, body #app > div .main-container .polls-holder .poll a:hover {\n              background-color: #eee; }\n          html #app > div .main-container .polls-holder .poll:after, body #app > div .main-container .polls-holder .poll:after {\n            content: '';\n            position: absolute;\n            width: 80%;\n            bottom: 0;\n            left: 10%;\n            border-top: 1px solid rgba(50, 50, 50, 0.25); }\n          html #app > div .main-container .polls-holder .poll:last-child:after, body #app > div .main-container .polls-holder .poll:last-child:after {\n            border: none; }\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 262 */
+/***/ function(module, exports) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	// css base code, injected by the css-loader
+	module.exports = function() {
+		var list = [];
+
+		// return the list of modules as css string
+		list.toString = function toString() {
+			var result = [];
+			for(var i = 0; i < this.length; i++) {
+				var item = this[i];
+				if(item[2]) {
+					result.push("@media " + item[2] + "{" + item[1] + "}");
+				} else {
+					result.push(item[1]);
+				}
+			}
+			return result.join("");
+		};
+
+		// import a list of modules into the list
+		list.i = function(modules, mediaQuery) {
+			if(typeof modules === "string")
+				modules = [[null, modules, ""]];
+			var alreadyImportedModules = {};
+			for(var i = 0; i < this.length; i++) {
+				var id = this[i][0];
+				if(typeof id === "number")
+					alreadyImportedModules[id] = true;
+			}
+			for(i = 0; i < modules.length; i++) {
+				var item = modules[i];
+				// skip already imported module
+				// this implementation is not 100% perfect for weird media query combinations
+				//  when a module is imported multiple times with different media queries.
+				//  I hope this will never occur (Hey this way we have smaller bundles)
+				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+					if(mediaQuery && !item[2]) {
+						item[2] = mediaQuery;
+					} else if(mediaQuery) {
+						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+					}
+					list.push(item);
+				}
+			}
+		};
+		return list;
+	};
 
 
 /***/ },
 /* 263 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(258);
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	var stylesInDom = {},
+		memoize = function(fn) {
+			var memo;
+			return function () {
+				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+				return memo;
+			};
+		},
+		isOldIE = memoize(function() {
+			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+		}),
+		getHeadElement = memoize(function () {
+			return document.head || document.getElementsByTagName("head")[0];
+		}),
+		singletonElement = null,
+		singletonCounter = 0,
+		styleElementsInsertedAtTop = [];
 
-	module.exports = vars.createClass('Radar', ['getPointsAtEvent']);
+	module.exports = function(list, options) {
+		if(false) {
+			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+		}
+
+		options = options || {};
+		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+		// tags it will allow on a page
+		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+
+		// By default, add <style> tags to the bottom of <head>.
+		if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
+
+		var styles = listToStyles(list);
+		addStylesToDom(styles, options);
+
+		return function update(newList) {
+			var mayRemove = [];
+			for(var i = 0; i < styles.length; i++) {
+				var item = styles[i];
+				var domStyle = stylesInDom[item.id];
+				domStyle.refs--;
+				mayRemove.push(domStyle);
+			}
+			if(newList) {
+				var newStyles = listToStyles(newList);
+				addStylesToDom(newStyles, options);
+			}
+			for(var i = 0; i < mayRemove.length; i++) {
+				var domStyle = mayRemove[i];
+				if(domStyle.refs === 0) {
+					for(var j = 0; j < domStyle.parts.length; j++)
+						domStyle.parts[j]();
+					delete stylesInDom[domStyle.id];
+				}
+			}
+		};
+	}
+
+	function addStylesToDom(styles, options) {
+		for(var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+			if(domStyle) {
+				domStyle.refs++;
+				for(var j = 0; j < domStyle.parts.length; j++) {
+					domStyle.parts[j](item.parts[j]);
+				}
+				for(; j < item.parts.length; j++) {
+					domStyle.parts.push(addStyle(item.parts[j], options));
+				}
+			} else {
+				var parts = [];
+				for(var j = 0; j < item.parts.length; j++) {
+					parts.push(addStyle(item.parts[j], options));
+				}
+				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+			}
+		}
+	}
+
+	function listToStyles(list) {
+		var styles = [];
+		var newStyles = {};
+		for(var i = 0; i < list.length; i++) {
+			var item = list[i];
+			var id = item[0];
+			var css = item[1];
+			var media = item[2];
+			var sourceMap = item[3];
+			var part = {css: css, media: media, sourceMap: sourceMap};
+			if(!newStyles[id])
+				styles.push(newStyles[id] = {id: id, parts: [part]});
+			else
+				newStyles[id].parts.push(part);
+		}
+		return styles;
+	}
+
+	function insertStyleElement(options, styleElement) {
+		var head = getHeadElement();
+		var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
+		if (options.insertAt === "top") {
+			if(!lastStyleElementInsertedAtTop) {
+				head.insertBefore(styleElement, head.firstChild);
+			} else if(lastStyleElementInsertedAtTop.nextSibling) {
+				head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
+			} else {
+				head.appendChild(styleElement);
+			}
+			styleElementsInsertedAtTop.push(styleElement);
+		} else if (options.insertAt === "bottom") {
+			head.appendChild(styleElement);
+		} else {
+			throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+		}
+	}
+
+	function removeStyleElement(styleElement) {
+		styleElement.parentNode.removeChild(styleElement);
+		var idx = styleElementsInsertedAtTop.indexOf(styleElement);
+		if(idx >= 0) {
+			styleElementsInsertedAtTop.splice(idx, 1);
+		}
+	}
+
+	function createStyleElement(options) {
+		var styleElement = document.createElement("style");
+		styleElement.type = "text/css";
+		insertStyleElement(options, styleElement);
+		return styleElement;
+	}
+
+	function createLinkElement(options) {
+		var linkElement = document.createElement("link");
+		linkElement.rel = "stylesheet";
+		insertStyleElement(options, linkElement);
+		return linkElement;
+	}
+
+	function addStyle(obj, options) {
+		var styleElement, update, remove;
+
+		if (options.singleton) {
+			var styleIndex = singletonCounter++;
+			styleElement = singletonElement || (singletonElement = createStyleElement(options));
+			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+		} else if(obj.sourceMap &&
+			typeof URL === "function" &&
+			typeof URL.createObjectURL === "function" &&
+			typeof URL.revokeObjectURL === "function" &&
+			typeof Blob === "function" &&
+			typeof btoa === "function") {
+			styleElement = createLinkElement(options);
+			update = updateLink.bind(null, styleElement);
+			remove = function() {
+				removeStyleElement(styleElement);
+				if(styleElement.href)
+					URL.revokeObjectURL(styleElement.href);
+			};
+		} else {
+			styleElement = createStyleElement(options);
+			update = applyToTag.bind(null, styleElement);
+			remove = function() {
+				removeStyleElement(styleElement);
+			};
+		}
+
+		update(obj);
+
+		return function updateStyle(newObj) {
+			if(newObj) {
+				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+					return;
+				update(obj = newObj);
+			} else {
+				remove();
+			}
+		};
+	}
+
+	var replaceText = (function () {
+		var textStore = [];
+
+		return function (index, replacement) {
+			textStore[index] = replacement;
+			return textStore.filter(Boolean).join('\n');
+		};
+	})();
+
+	function applyToSingletonTag(styleElement, index, remove, obj) {
+		var css = remove ? "" : obj.css;
+
+		if (styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = replaceText(index, css);
+		} else {
+			var cssNode = document.createTextNode(css);
+			var childNodes = styleElement.childNodes;
+			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+			if (childNodes.length) {
+				styleElement.insertBefore(cssNode, childNodes[index]);
+			} else {
+				styleElement.appendChild(cssNode);
+			}
+		}
+	}
+
+	function applyToTag(styleElement, obj) {
+		var css = obj.css;
+		var media = obj.media;
+
+		if(media) {
+			styleElement.setAttribute("media", media)
+		}
+
+		if(styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = css;
+		} else {
+			while(styleElement.firstChild) {
+				styleElement.removeChild(styleElement.firstChild);
+			}
+			styleElement.appendChild(document.createTextNode(css));
+		}
+	}
+
+	function updateLink(linkElement, obj) {
+		var css = obj.css;
+		var sourceMap = obj.sourceMap;
+
+		if(sourceMap) {
+			// http://stackoverflow.com/a/26603875
+			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+		}
+
+		var blob = new Blob([css], { type: "text/css" });
+
+		var oldSrc = linkElement.href;
+
+		linkElement.href = URL.createObjectURL(blob);
+
+		if(oldSrc)
+			URL.revokeObjectURL(oldSrc);
+	}
 
 
 /***/ }
