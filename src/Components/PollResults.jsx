@@ -15,8 +15,8 @@ const PollResults = React.createClass({
 	        url: '/poll/' + self.props.pollId,
 	        method: 'DELETE',
 	        success: function(response) {
-				// redirect user to their polls
-				self.context.router.push('/users/' + self.props.userId);
+				// redirect user to homepage
+				self.context.router.push('/');
 	        }
 	    });
 	},

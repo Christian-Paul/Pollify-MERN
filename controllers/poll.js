@@ -39,62 +39,83 @@ router.post('/:pollId/add-option', function(req, res) {
 
 // create a poll
 router.post('/new', function(req, res) {
-	var formData = req.body;
+	// un-authenticated users can't create polls
+	if(!req.session.userInfo) {
+		res.status(401).send('Must be logged in to create polls');
+	} else {
+		var formData = req.body;
 
-	// title is first item in array, formDataArr now contains only options
-	var title = formData.pollTitle;
+		// title is first item in array, formDataArr now contains only options
+		var title = formData.pollTitle;
 
-	// check to see if title ends in question mark, if it doesn't, add it
-	if(title.lastIndexOf('?') !== (title.length - 1)) {
-		title = title.concat('?');
-	}
-
-	// creates an array of objects whose name property have the value of the formData options
-	var optionsArr = [];
-
-	for(option in formData.pollOptions) {
-		// only push the option value if its length is greater than 0 (not '')
-		if(formData.pollOptions[option] !== '') {
-			optionsArr.push({
-				name: formData.pollOptions[option]
-			});
+		// check to see if title ends in question mark, if it doesn't, add it
+		if(title.lastIndexOf('?') !== (title.length - 1)) {
+			title = title.concat('?');
 		}
-	}
 
-	var poll = {
-		title: title,
-		author: {
-			name: req.session.userInfo['screen_name'],
-			twitterId: req.session.userInfo.id
-		},
-		options: optionsArr
-	};
+		// creates an array of objects whose name property have the value of the formData options
+		var optionsArr = [];
 
-	Poll.addNew(poll, function(err, result) {
-		if(err) {
-			console.log(err);
-		} else {
-			// redirect user to the poll they just created
-			res.send({
-				result: 'success',
-				newPollId: result['_id']
-			});
+		for(option in formData.pollOptions) {
+			// only push the option value if its length is greater than 0 (not '')
+			if(formData.pollOptions[option] !== '') {
+				optionsArr.push({
+					name: formData.pollOptions[option]
+				});
+			}
 		}
-	})
+
+		var poll = {
+			title: title,
+			author: {
+				name: req.session.userInfo['screen_name'],
+				twitterId: req.session.userInfo.id
+			},
+			options: optionsArr
+		};
+
+		Poll.addNew(poll, function(err, result) {
+			if(err) {
+				console.log(err);
+			} else {
+				// redirect user to the poll they just created
+				res.send({
+					result: 'success',
+					newPollId: result['_id']
+				});
+			}
+		})
+	}
 });
 
 // delete a poll
 router.delete('/:pollId', function(req, res) {
-	Poll.deleteById(req.params.pollId, function(err, result) {
-		if(err) {
-			console.log(err);
-		} else {
-			res.send({
-				result: 'success',
-				pollOptions: result.options
-			});
-		}
-	})
+	// check if user is logged in
+	if(!req.session.userInfo) {
+		res.status(401).send('Polls can only be deleted by their author.');
+	} else {
+		// check if user is the author of this poll
+		Poll.getById(req.params.pollId, function(err, result) {
+			if(err) {
+				console.log(err);
+			} else {
+				if(req.session.userInfo.id !== result.author.twitterId) {
+					res.status(403).send('Polls can only be deleted by their author.');
+				} else {
+					Poll.deleteById(req.params.pollId, function(err, result) {
+						if(err) {
+							console.log(err);
+						} else {
+							res.send({
+								result: 'success',
+								pollOptions: result.options
+							});
+						}
+					})
+				}
+			}
+		});
+	}
 });
 
 // process a vote

@@ -28936,8 +28936,8 @@
 				url: '/poll/' + self.props.pollId,
 				method: 'DELETE',
 				success: function success(response) {
-					// redirect user to their polls
-					self.context.router.push('/users/' + self.props.userId);
+					// redirect user to homepage
+					self.context.router.push('/');
 				}
 			});
 		},
@@ -28975,7 +28975,7 @@
 					}
 				}(),
 				function () {
-					if (_this.props.userId && _this.props.pollAuthorId === _this.props.userId) {
+					if ('this.props.userId && this.props.pollAuthorId === this.props.userId') {
 						return _react2.default.createElement(
 							'div',
 							{ className: 'delete-container' },
