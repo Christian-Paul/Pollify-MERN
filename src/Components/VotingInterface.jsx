@@ -36,7 +36,7 @@ const VotingInterface = React.createClass({
 		// send vote to server
 		var self = this;
 	    $.ajax({
-	        url: 'poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
+	        url: '/poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
 	        success: function(response) {
 	        	console.log(response);
 	        	if(response.result === 'success') {

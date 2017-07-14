@@ -10434,7 +10434,7 @@
 		componentDidMount: function componentDidMount() {
 			var that = this;
 			// check if user is authenticated
-			$.ajax('/check-auth').done(function (response) {
+			$.ajax('/auth/check-auth').done(function (response) {
 				if (response !== 'not authenticated') {
 					// if they are authenticated, set user information
 					that.setState({
@@ -10592,7 +10592,7 @@
 		displayName: 'Navbar',
 
 		signIn: function signIn() {
-			$.ajax('/request-token').done(function (response) {
+			$.ajax('/auth/request-token').done(function (response) {
 				console.log(response);
 				window.location = response;
 			});
@@ -10727,7 +10727,7 @@
 		signOut: function signOut() {
 			var self = this;
 
-			$.ajax('/sign-out').done(function () {
+			$.ajax('/auth/logout').done(function () {
 				self.props.signOut();
 			});
 		},
@@ -33129,7 +33129,7 @@
 			// send vote to server
 			var self = this;
 			$.ajax({
-				url: 'poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
+				url: '/poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
 				success: function success(response) {
 					console.log(response);
 					if (response.result === 'success') {

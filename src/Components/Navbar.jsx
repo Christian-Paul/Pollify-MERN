@@ -5,7 +5,7 @@ import UserMenu from './UserMenu.jsx';
 
 const Navbar = React.createClass({
 	signIn: function() {
-		$.ajax('/request-token')
+		$.ajax('/auth/request-token')
 			.done(function(response) {
 				console.log(response);
 				window.location = response;

@@ -16,7 +16,7 @@ const Layout = React.createClass({
 	componentDidMount: function() {
 		var that = this;
 		// check if user is authenticated
-		$.ajax('/check-auth')
+		$.ajax('/auth/check-auth')
 			.done(function(response) {
 				if(response !== 'not authenticated') {
 					// if they are authenticated, set user information

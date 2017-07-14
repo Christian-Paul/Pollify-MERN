@@ -23,7 +23,7 @@ const UserMenu = onClickOutside(React.createClass({
 	signOut: function() {
 		var self = this;
 
-		$.ajax('/sign-out')
+		$.ajax('/auth/logout')
 			.done(function() {
 				self.props.signOut();
 			});
