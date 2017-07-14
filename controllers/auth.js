@@ -28,25 +28,26 @@ router.get('/login/twitter/callback', function(req, res) {
 	var requestToken = req.query.oauth_token;
 	var verifier = req.query.oauth_verifier;
 
-    twitter.getAccessToken(requestToken, _requestSecret, verifier, function(err, accessToken, accessSecret) {
-        if (err)
-            res.status(500).send(err);
-        else
-            twitter.verifyCredentials(accessToken, accessSecret, function(err, user) {
-                if (err)
-                    res.status(500).send(err);
-                else {
-                	req.session.userInfo = user;
-                	req.session.save(function(err) {
-                		if(err) {
-                			console.log(err);
-                		} else {
-                			res.redirect('/');
-                		}
-                	});
-                }
-            });
-    });
+	twitter.getAccessToken(requestToken, _requestSecret, verifier, function(err, accessToken, accessSecret) {
+		if (err) {
+			res.status(500).send(err);
+		}
+		else {
+			twitter.verifyCredentials(accessToken, accessSecret, function(err, user) {
+				if (err)
+					res.status(500).send(err);
+				else {
+					req.session.userInfo = user;
+					req.session.save(function(err) {
+						if(err) {
+							console.log(err);
+						} 
+						res.redirect('/')
+					})
+				}
+			});
+		}
+	});
 });
 
 // sign out: destroy session
@@ -62,11 +63,12 @@ router.get('/logout', function(req, res) {
 
 // check if user is authenticated
 router.get('/check-auth', function(req, res) {
-	if(req.hasOwnProperty('session') && req.session.hasOwnProperty('userInfo')) {
-		res.send(req.session.userInfo);
-	} else {
-		res.send('not authenticated');
-	}
+	var data = {
+		logged: req.session.userInfo !== undefined,
+		userInfo: req.session.userInfo
+	};
+
+	res.send(data);
 });
 
 module.exports = router;

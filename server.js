@@ -28,7 +28,12 @@ var sessionOptions = {
 	saveUninitialized: true,
 	resave: false,
 	store: new FileStore(),
-	name: 'my.connect.sid'
+	name: 'my.connect.sid',
+	cookie: {
+		httpOnly: false,
+		secure: false,
+		maxAge: 31540000000
+	}
 };
 
 // database initialization

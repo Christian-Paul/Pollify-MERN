@@ -10435,13 +10435,13 @@
 			var that = this;
 			// check if user is authenticated
 			$.ajax('/auth/check-auth').done(function (response) {
-				if (response !== 'not authenticated') {
+				if (response.logged) {
 					// if they are authenticated, set user information
 					that.setState({
 						userIsAuthenticated: true,
-						userName: response['screen_name'],
-						userImage: response['profile_image_url_https'],
-						userId: response.id
+						userName: response.userInfo['screen_name'],
+						userImage: response.userInfo['profile_image_url_https'],
+						userId: response.userInfo.id
 					});
 				}
 			});
