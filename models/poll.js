@@ -68,3 +68,14 @@ exports.addNewOption = function(optionName, pollId, callback) {
 		}
 	);
 }
+
+exports.deleteById = function(pollId, callback) {
+	Poll.findByIdAndRemove(pollId, function(err, result) {
+		if(err) {
+			console.log(err);
+			callback(err);
+		} else {
+			callback(null, result)
+		}
+	})
+}

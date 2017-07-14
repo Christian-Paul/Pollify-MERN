@@ -222,13 +222,13 @@ app.get('/add-option', function(req, res) {
 
 // delete a poll
 app.get('/delete-poll', function(req, res) {
-	Poll.findByIdAndRemove(req.query.pollId, function(err, doc) {
+	Poll.deleteById(req.query.pollId, function(err, result) {
 		if(err) {
 			console.log(err);
 		} else {
 			res.send({
 				result: 'success',
-				pollOptions: doc.options
+				pollOptions: result.options
 			});
 		}
 	})
