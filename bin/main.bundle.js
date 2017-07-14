@@ -28933,7 +28933,8 @@
 			// send request for server to delete poll
 			var self = this;
 			$.ajax({
-				url: '/poll/' + self.props.pollId + '/delete',
+				url: '/poll/' + self.props.pollId,
+				method: 'DELETE',
 				success: function success(response) {
 					// redirect user to their polls
 					self.context.router.push('/users/' + self.props.userId);
@@ -33130,6 +33131,7 @@
 			var self = this;
 			$.ajax({
 				url: '/poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
+				method: 'POST',
 				success: function success(response) {
 					console.log(response);
 					if (response.result === 'success') {
@@ -33147,6 +33149,7 @@
 			var self = this;
 			$.ajax({
 				url: '/poll/' + self.props.pollId + '/add-option' + '?newOption=' + self.state.newOption,
+				method: 'POST',
 				success: function success(response) {
 					// update options state in Poll component when done
 					self.props.updateOptions(response.pollOptions);

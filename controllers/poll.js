@@ -24,7 +24,7 @@ router.get('/:pollId', function(req, res) {
 });
 
 // add a new option to a poll
-router.get('/:pollId/add-option', function(req, res) {
+router.post('/:pollId/add-option', function(req, res) {
 	Poll.addNewOption(req.query.newOption, req.params.pollId, function(err, result) {
 		if(err) {
 			console.log(err);
@@ -84,7 +84,7 @@ router.post('/new', function(req, res) {
 });
 
 // delete a poll
-router.get('/:pollId/delete', function(req, res) {
+router.delete('/:pollId', function(req, res) {
 	Poll.deleteById(req.params.pollId, function(err, result) {
 		if(err) {
 			console.log(err);
@@ -98,7 +98,7 @@ router.get('/:pollId/delete', function(req, res) {
 });
 
 // process a vote
-router.get('/:pollId/vote', function(req, res) {
+router.post('/:pollId/vote', function(req, res) {
 
 	// the number corresponding to the user's vote
 	var userChoice = req.query.vote;

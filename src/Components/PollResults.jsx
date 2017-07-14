@@ -12,7 +12,8 @@ const PollResults = React.createClass({
 		// send request for server to delete poll
 		var self = this;
 	    $.ajax({
-	        url: '/poll/' + self.props.pollId + '/delete',
+	        url: '/poll/' + self.props.pollId,
+	        method: 'DELETE',
 	        success: function(response) {
 				// redirect user to their polls
 				self.context.router.push('/users/' + self.props.userId);
