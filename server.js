@@ -135,14 +135,13 @@ app.get('/recent-polls', function(req, res) {
 
 // get polls by user id
 app.get('/user-polls/:tagId', function(req, res) {
-	Poll.find( { 'author.twitterId' : req.params.tagId }, function(err, results) {
+	Poll.getByAuthorId(req.params.tagId, function(err, results) {
 		if(err) {
-			console.log(err)
+			console.log(err);
 		} else {
-			var results = JSON.stringify(results);
-			res.json(results);
+			res.json(JSON.stringify(results));
 		}
-	});
+	})
 });
 
 // get poll by poll id

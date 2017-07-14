@@ -25,3 +25,13 @@ exports.getRecent = function(callback) {
 		}
 	})
 }
+
+exports.getByAuthorId = function(authorId, callback) {
+	Poll.find({ 'author.twitterId': authorId }, function(err, results) {
+		if(err) {
+			console.log(err)
+		} else {
+			callback(null, results);
+		}
+	});	
+}
