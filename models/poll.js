@@ -79,3 +79,15 @@ exports.deleteById = function(pollId, callback) {
 		}
 	})
 }
+
+exports.addNew = function(poll, callback) {
+	var newPoll = new Poll(poll)
+
+	newPoll.save(function(err, result) {
+		if(err) {
+			console.log(err);
+		} else {
+			callback(null, result)
+		}
+	});
+}

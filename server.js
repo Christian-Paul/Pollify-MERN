@@ -257,25 +257,24 @@ app.post('/create-poll', function(req, res) {
 		}
 	}
 
-	var newPoll = new Poll({
+	var poll = {
 		title: title,
 		author: {
 			name: req.session.userInfo['screen_name'],
 			twitterId: req.session.userInfo.id
 		},
 		options: optionsArr
-	});
+	};
 
-	newPoll.save(function(err, poll) {
+	Poll.addNew(poll, function(err, result) {
 		if(err) {
 			console.log(err);
 		} else {
 			// redirect user to the poll they just created
 			res.send({
 				result: 'success',
-				newPollId: poll['_id']
+				newPollId: result['_id']
 			});
 		}
-	});	
-
+	})
 });
