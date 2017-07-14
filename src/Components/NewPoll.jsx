@@ -67,7 +67,7 @@ const NewPoll = React.createClass({
 				pollTitle: self.state.pollTitle,
 				pollOptions: self.state.pollOptions
 			},
-			url: '/create-poll',
+			url: '/poll/new',
 			success: function(response){
 				// redirect to new poll
 				self.context.router.push('/polls/' + response.newPollId);

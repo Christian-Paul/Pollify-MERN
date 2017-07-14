@@ -18,7 +18,7 @@ const Poll = React.createClass({
 	componentDidMount: function() {
 		// send request for poll data
 		var self = this;
-		$.ajax('/polls/' + self.props.params.poll)
+		$.ajax('/poll/' + self.props.params.poll)
 			.done(function(response) {
 				response = JSON.parse(response);
 				self.setState({

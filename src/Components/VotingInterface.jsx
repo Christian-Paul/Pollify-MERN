@@ -36,7 +36,7 @@ const VotingInterface = React.createClass({
 		// send vote to server
 		var self = this;
 	    $.ajax({
-	        url: '/vote?pollId=' + self.props.pollId + '&vote=' + self.state.selectedOption,
+	        url: 'poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
 	        success: function(response) {
 	        	console.log(response);
 	        	if(response.result === 'success') {
@@ -53,7 +53,7 @@ const VotingInterface = React.createClass({
 		// send new option to server
 		var self = this;
 	    $.ajax({
-	        url: '/add-option?pollId=' + self.props.pollId + '&newOption=' + self.state.newOption,
+	        url: '/poll/' + self.props.pollId + '/add-option' + '?newOption=' + self.state.newOption,
 	        success: function(response) {
 				// update options state in Poll component when done
 				self.props.updateOptions(response.pollOptions);

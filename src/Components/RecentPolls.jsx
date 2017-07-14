@@ -10,7 +10,7 @@ const RecentPolls = React.createClass({
 	componentDidMount: function() {
 		// send request for recent polls
 		var self = this;
-		$.ajax('/recent-polls')
+		$.ajax('/poll/recent')
 			.done(function(response) {
 				self.setState({
 					// add recent polls to polls state

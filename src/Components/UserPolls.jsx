@@ -12,7 +12,7 @@ const UserPolls = React.createClass({
 	componentDidMount: function() {
 		// send request for user's polls
 		var self = this;
-		$.ajax('/user-polls/' + self.props.params.user)
+		$.ajax('/user/' + self.props.params.user)
 			.done(function(response) {
 				var response = JSON.parse(response)
 				self.setState({
