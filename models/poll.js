@@ -46,3 +46,25 @@ exports.getById = function(pollId, callback) {
 		}
 	})
 }
+
+exports.addNewOption = function(optionName, pollId, callback) {
+	var newOption = {
+		votes: 0,
+		name: optionName
+	};
+
+	// new set to true so returned object will return updated value
+	Poll.findOneAndUpdate(
+	    {'_id': pollId}, 
+	    {$push: {options: newOption}}, 
+	    {new: true}, 
+	    function(err, result) {
+			if(err) {
+				console.log(err);
+				callback(err);
+			} else {
+				callback(null, result);
+			}
+		}
+	);
+}

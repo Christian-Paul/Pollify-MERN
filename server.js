@@ -208,20 +208,13 @@ app.get('/vote', function(req, res) {
 
 // add a new option to a poll
 app.get('/add-option', function(req, res) {
-
-	var newOption = {
-		votes: 0,
-		name: req.query.newOption
-	};
-
-	// new set to true so doc object will return updated value
-	Poll.findOneAndUpdate( {'_id': req.query.pollId}, { $push: { options: newOption } }, { new: true }, function(err, doc) {
+	Poll.addNewOption(req.query.newOption, req.query.pollId, function(err, result) {
 		if(err) {
 			console.log(err);
 		} else {
 			res.send({
 				result: 'success',
-				pollOptions: doc.options
+				pollOptions: result.options
 			});
 		}
 	});
