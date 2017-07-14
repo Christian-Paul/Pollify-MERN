@@ -35,3 +35,14 @@ exports.getByAuthorId = function(authorId, callback) {
 		}
 	});	
 }
+
+exports.getById = function(pollId, callback) {
+	Poll.findOne({'_id': pollId}, function(err, result) {
+		if(err) {
+			console.log(err);
+			callback(err);
+		} else {
+			callback(null, result)
+		}
+	})
+}

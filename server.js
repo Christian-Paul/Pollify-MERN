@@ -146,14 +146,13 @@ app.get('/user-polls/:tagId', function(req, res) {
 
 // get poll by poll id
 app.get('/polls/:tagId', function(req, res) {
-	Poll.findOne( {'_id': req.params.tagId}, function(err, result) {
+	Poll.getById(req.params.tagId, function(err, result) {
 		if(err) {
 			console.log(err);
 		} else {
-			var result = JSON.stringify(result);
-			res.json(result);
+			res.json(JSON.stringify(result));
 		}
-	})
+	});
 });
 
 // process a vote
