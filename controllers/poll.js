@@ -131,24 +131,46 @@ router.post('/:pollId/vote', function(req, res) {
 	var updateObj = {};
 	updateObj[locationString] = 1;
 
-	Poll.addVote(req.params.pollId, req.session, req.ip, updateObj, function(err, result) {
+	// find poll and check if the current user has already voted
+	Poll.getById(req.params.pollId, function(err, result) {
 		if(err) {
 			console.log(err);
+			callback(err);
 		} else {
-			if(result.result === 'fail') {
-				res.send({
-					result: 'fail',
-					message: 'This account or IP address has already voted'
-				})
+			// check to see if voters array contains the user's id or IP already
+			if(req.session.hasOwnProperty('userInfo') && req.session.userInfo) {
+				var userId = session.userInfo.id;
 			} else {
-				res.send({
-					result: 'success',
-					message: 'Vote casted for: ' + result.options[userChoice].name,
-					pollOptions: result.options
+				var userId = req.ip;
+			}
+			// if their id/ip is present, send error
+			if(result.voters.indexOf(userId) === -1) {
+				res.status(409).send('This IP or user has voted already');
+			} else {
+				Poll.addVote(req.params.pollId, req.session, req.ip, updateObj, function(err, result) {
+					if(err) {
+						console.log(err);
+					} else {
+						if(result.result === 'fail') {
+							res.send({
+								result: 'fail',
+								message: 'This account or IP address has already voted'
+							})
+						} else {
+							res.send({
+								result: 'success',
+								message: 'Vote casted for: ' + result.options[userChoice].name,
+								pollOptions: result.options
+							});
+						}
+					}
 				});
 			}
-		}
-	});
+		}		
+	})
+
+
+
 });
 
 module.exports = router;
