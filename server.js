@@ -168,38 +168,20 @@ app.get('/vote', function(req, res) {
 	var updateObj = {};
 	updateObj[locationString] = 1;
 
-
-	// find poll and check if the current user has already voted
-	Poll.findOne( {'_id': req.query.pollId}, function(err, doc) {
+	Poll.addVote(req.query.pollId, req.session, req.ip, updateObj, function(err, result) {
 		if(err) {
 			console.log(err);
 		} else {
-			// check to see if voters array contains the user's id or IP already
-			// if their id/IP is present, userAlreadyVoted returns true
-			if(req.session.hasOwnProperty('userInfo') && req.session.userInfo) {
-				var userId = req.session.userInfo.id;
-			} else {
-				var userId = req.ip;
-			}
-			var userAlreadyVoted = (doc.voters.indexOf(userId) !== -1);
-
-			if(userAlreadyVoted) {
+			if(result.result === 'fail') {
 				res.send({
 					result: 'fail',
 					message: 'This account or IP address has already voted'
-				});
+				})
 			} else {
-				// new set to true so doc object will return updated value
-				Poll.findOneAndUpdate( {'_id': req.query.pollId}, { $inc: updateObj, $push: { voters: userId } }, { new: true }, function(err, doc) {
-					if(err) {
-						console.log(err);
-					} else {
-						res.send({
-							result: 'success',
-							message: 'Vote casted for: ' + doc.options[userChoice].name,
-							pollOptions: doc.options
-						});
-					}
+				res.send({
+					result: 'success',
+					message: 'Vote casted for: ' + result.options[userChoice].name,
+					pollOptions: result.options
 				});
 			}
 		}

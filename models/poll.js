@@ -86,8 +86,42 @@ exports.addNew = function(poll, callback) {
 	newPoll.save(function(err, result) {
 		if(err) {
 			console.log(err);
+			callback(err);
 		} else {
 			callback(null, result)
+		}
+	});
+}
+
+exports.addVote = function(pollId, session, ip, updateObj, callback) {
+	// find poll and check if the current user has already voted
+	Poll.findOne( {'_id': pollId}, function(err, result) {
+		if(err) {
+			console.log(err);
+			callback(err);
+		} else {
+			// check to see if voters array contains the user's id or IP already
+			// if their id/IP is present, userAlreadyVoted returns true
+			if(session.hasOwnProperty('userInfo') && session.userInfo) {
+				var userId = session.userInfo.id;
+			} else {
+				var userId = ip;
+			}
+			var userAlreadyVoted = (result.voters.indexOf(userId) !== -1);
+
+			if(userAlreadyVoted) {
+				callback(null, {result: 'fail'})
+			} else {
+				// new set to true so result object will return updated value
+				Poll.findOneAndUpdate( {'_id': pollId}, { $inc: updateObj, $push: { voters: userId } }, { new: true }, function(err, result) {
+					if(err) {
+						console.log(err);
+						callback(err);
+					} else {
+						callback(null, result)
+					}
+				});
+			}
 		}
 	});
 }
