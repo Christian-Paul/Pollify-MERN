@@ -47,17 +47,7 @@ var twitter = new Twitter({
 // database initialization
 mongoose.connect('mongodb://' + config.mongooseUsername + ':' + config.mongoosePassword + '@ds161245.mlab.com:61245/fcc-voting');
 
-var pollSchema = new mongoose.Schema({
-	title: String,
-	author: {
-		name: String,
-		twitterId: Number
-	},
-	options: [{ name: String, votes: { type: Number, default: 0 } }],
-	voters: Array
-});
 
-var Poll = mongoose.model('Poll', pollSchema)
 
 // begin app
 app.listen(port, function(req, res) {
@@ -130,16 +120,17 @@ app.get('/check-auth', function(req, res) {
 	}
 });
 
+var Poll = require('./models/poll.js');
+
 // get recent polls
 app.get('/recent-polls', function(req, res) {
-	Poll.find({}, 'title', function(err, results) {
+	Poll.getRecent(function(err, results) {
 		if(err) {
 			console.log(err);
 		} else {
-			var results = JSON.stringify(results);
-			res.json(results);
+			res.json(JSON.stringify(results));
 		}
-	})
+	});
 });
 
 // get polls by user id
