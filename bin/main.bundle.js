@@ -10453,14 +10453,6 @@
 				}
 			});
 		},
-		signOut: function signOut() {
-			this.setState({
-				userIsAuthenticated: false,
-				userName: '',
-				userImage: '',
-				userId: ''
-			});
-		},
 		render: function render() {
 			var self = this;
 			// Use react helper methods to pass state to arbitrary child component
@@ -10475,7 +10467,7 @@
 			return _react2.default.createElement(
 				'div',
 				null,
-				_react2.default.createElement(_Navbar2.default, { signOut: this.signOut, userIsAuthenticated: this.state.userIsAuthenticated, userName: this.state.userName, userImage: this.state.userImage, userId: this.state.userId }),
+				_react2.default.createElement(_Navbar2.default, { userIsAuthenticated: this.state.userIsAuthenticated, userName: this.state.userName, userImage: this.state.userImage, userId: this.state.userId }),
 				children,
 				_react2.default.createElement(_Footer2.default, null)
 			);
@@ -10539,7 +10531,7 @@
 						{ className: 'icons-container' },
 						_react2.default.createElement(
 							'a',
-							{ className: 'icon', href: 'https://www.linkedin.com/in/christian-paul' },
+							{ className: 'icon', href: 'https://www.linkedin.com/in/christian-paul', target: 'blank' },
 							_react2.default.createElement(
 								'svg',
 								{ xmlns: 'http://www.w3.org/2000/svg', xmlnsXlink: 'http://www.w3.org/1999/xlink', className: 'linkedin-svg', viewBox: '0 0 32 32' },
@@ -10548,7 +10540,7 @@
 						),
 						_react2.default.createElement(
 							'a',
-							{ className: 'icon', href: 'https://github.com/Christian-Paul/Pollify-MERN' },
+							{ className: 'icon', href: 'https://github.com/Christian-Paul/Pollify-MERN', target: 'blank' },
 							_react2.default.createElement(
 								'svg',
 								{ xmlns: 'http://www.w3.org/2000/svg', xmlnsXlink: 'http://www.w3.org/1999/xlink', className: 'github-svg', viewBox: '0 0 32 32' },
@@ -10557,7 +10549,7 @@
 						),
 						_react2.default.createElement(
 							'a',
-							{ className: 'icon', href: 'https://dawningagedesigns.com' },
+							{ className: 'icon', href: 'https://christianpaul.xyz/', target: 'blank' },
 							_react2.default.createElement(
 								'svg',
 								{ xmlns: 'http://www.w3.org/2000/svg', xmlnsXlink: 'http://www.w3.org/1999/xlink', className: 'link-svg', viewBox: '0 0 32 32' },
@@ -10672,7 +10664,7 @@
 					_react2.default.createElement(
 						'div',
 						{ className: 'destination' },
-						_react2.default.createElement(_UserMenu2.default, { signOut: this.props.signOut, userIsAuthenticated: this.props.userIsAuthenticated, userName: this.props.userName, userImage: this.props.userImage, userId: this.props.userId })
+						_react2.default.createElement(_UserMenu2.default, { userIsAuthenticated: this.props.userIsAuthenticated, userName: this.props.userName, userImage: this.props.userImage, userId: this.props.userId })
 					)
 				)
 			);
@@ -10732,7 +10724,6 @@
 		},
 		signOut: function signOut() {
 			var self = this;
-
 			$.ajax('/auth/logout').done(function (response) {
 				if (response === 'ok') {
 					window.location = '/';
