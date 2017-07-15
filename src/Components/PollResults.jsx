@@ -14,9 +14,12 @@ const PollResults = React.createClass({
 	    $.ajax({
 	        url: '/poll/' + self.props.pollId,
 	        method: 'DELETE',
-	        success: function(response) {
+	        success: function() {
 				// redirect user to homepage
 				self.context.router.push('/');
+	        },
+	        error: function(response, status) {
+	        	alert('Could not delete poll. ' + response.responseText);
 	        }
 	    });
 	},
@@ -52,7 +55,7 @@ const PollResults = React.createClass({
 				}
 				{
 					(() => {
-						if(this.props.userId && this.props.pollAuthorId === this.props.userId) {
+						if('this.props.userId && this.props.pollAuthorId === this.props.userId') {
 							return (
 								<div className='delete-container'>
 									<div className='delete-button' onClick={this.deletePoll}>Delete Poll</div>

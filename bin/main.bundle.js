@@ -28729,7 +28729,10 @@
 				url: '/poll/new',
 				success: function success(response) {
 					// redirect to new poll
-					self.context.router.push('/polls/' + response.newPollId);
+					self.context.router.push('/polls/' + response);
+				},
+				error: function error(response) {
+					alert('Unable to create poll. ' + response.responseText);
 				}
 			});
 		},
@@ -28935,9 +28938,12 @@
 			$.ajax({
 				url: '/poll/' + self.props.pollId,
 				method: 'DELETE',
-				success: function success(response) {
+				success: function success() {
 					// redirect user to homepage
 					self.context.router.push('/');
+				},
+				error: function error(response, status) {
+					alert('Could not delete poll. ' + response.responseText);
 				}
 			});
 		},
@@ -28975,7 +28981,7 @@
 					}
 				}(),
 				function () {
-					if (_this.props.userId && _this.props.pollAuthorId === _this.props.userId) {
+					if ('this.props.userId && this.props.pollAuthorId === this.props.userId') {
 						return _react2.default.createElement(
 							'div',
 							{ className: 'delete-container' },
@@ -33133,14 +33139,10 @@
 				url: '/poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
 				method: 'POST',
 				success: function success(response) {
-					console.log(response);
-					if (response.result === 'success') {
-						// if user voted successfuly, update options state in Poll component
-						self.props.updateOptions(response.pollOptions);
-					} else {
-						// if vote failed, show error message
-						alert('This account or IP address has already voted');
-					}
+					self.props.updateOptions(response);
+				},
+				error: function error(response) {
+					alert('Could not apply vote. ' + response.responseText);
 				}
 			});
 		},

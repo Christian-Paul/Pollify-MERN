@@ -82,12 +82,10 @@ router.post('/new', function(req, res) {
 		Poll.addNew(poll, function(err, result) {
 			if(err) {
 				console.log(err);
+				res.status(500).send('Error connecting to database');
 			} else {
 				// redirect user to the poll they just created
-				res.send({
-					result: 'success',
-					newPollId: result['_id']
-				});
+				res.status(200).send(result['_id']);
 			}
 		})
 	}
@@ -102,6 +100,7 @@ router.delete('/:pollId', function(req, res) {
 		// check if user is the author of this poll
 		Poll.getById(req.params.pollId, function(err, result) {
 			if(err) {
+				res.status(500).send('Error connecting to database');
 				console.log(err);
 			} else {
 				if(req.session.userInfo.id !== result.author.twitterId) {
@@ -109,12 +108,10 @@ router.delete('/:pollId', function(req, res) {
 				} else {
 					Poll.deleteById(req.params.pollId, function(err, result) {
 						if(err) {
+							res.status(500).send('Error connecting to database');
 							console.log(err);
 						} else {
-							res.send({
-								result: 'success',
-								pollOptions: result.options
-							});
+							res.status(200).send('Success');
 						}
 					})
 				}
@@ -140,42 +137,29 @@ router.post('/:pollId/vote', function(req, res) {
 	Poll.getById(req.params.pollId, function(err, result) {
 		if(err) {
 			console.log(err);
-			callback(err);
+			res.status(500).send('Error connecting to database');
 		} else {
 			// check to see if voters array contains the user's id or IP already
 			if(req.session.hasOwnProperty('userInfo') && req.session.userInfo) {
-				var userId = session.userInfo.id;
+				var userId = req.session.userInfo.id;
 			} else {
 				var userId = req.ip;
 			}
 			// if their id/ip is present, send error
-			if(result.voters.indexOf(userId) === -1) {
+			if(result.voters.indexOf(userId) !== -1) {
 				res.status(409).send('This IP or user has voted already');
 			} else {
-				Poll.addVote(req.params.pollId, req.session, req.ip, updateObj, function(err, result) {
+				Poll.addVote(req.params.pollId, userId, updateObj, function(err, result) {
 					if(err) {
 						console.log(err);
+						res.status(500).send('Error connecting to database');
 					} else {
-						if(result.result === 'fail') {
-							res.send({
-								result: 'fail',
-								message: 'This account or IP address has already voted'
-							})
-						} else {
-							res.send({
-								result: 'success',
-								message: 'Vote casted for: ' + result.options[userChoice].name,
-								pollOptions: result.options
-							});
-						}
+						res.status(200).send(result.options);
 					}
 				});
 			}
 		}		
 	})
-
-
-
 });
 
 module.exports = router;

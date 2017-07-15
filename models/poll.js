@@ -93,7 +93,7 @@ exports.addNew = function(poll, callback) {
 	});
 }
 
-exports.addVote = function(pollId, session, ip, updateObj, callback) {
+exports.addVote = function(pollId, userId, updateObj, callback) {
 	// new set to true so result object will return updated value
 	Poll.findOneAndUpdate({'_id': pollId}, { $inc: updateObj, $push: { voters: userId } }, { new: true }, function(err, result) {
 		if(err) {

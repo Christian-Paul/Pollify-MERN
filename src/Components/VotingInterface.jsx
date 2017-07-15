@@ -39,14 +39,10 @@ const VotingInterface = React.createClass({
 			url: '/poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
 			method: 'POST',
 			success: function(response) {
-				console.log(response);
-				if(response.result === 'success') {
-					// if user voted successfuly, update options state in Poll component
-					self.props.updateOptions(response.pollOptions)
-				} else {
-					// if vote failed, show error message
-					alert('This account or IP address has already voted');
-				}
+				self.props.updateOptions(response);
+			},
+			error: function(response) {
+				alert('Could not apply vote. ' + response.responseText);
 			}
 		});
 	},
