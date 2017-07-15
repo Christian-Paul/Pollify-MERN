@@ -11,7 +11,8 @@ const NewPoll = React.createClass({
 				'option-1': '',
 				'option-2': '',
 				'option-3': ''
-			}
+			},
+			disabled: false
 		}
 	},
 	updateTitle: function(event) {
@@ -59,6 +60,10 @@ const NewPoll = React.createClass({
 		});
 	},
 	postPoll: function() {
+		this.setState({
+			disabled: true
+		});
+		
 		var self = this;
 
 		$.ajax({
@@ -74,6 +79,9 @@ const NewPoll = React.createClass({
 			},
 			error: function(response) {
 				alert('Unable to create poll. ' + response.responseText)
+				this.setState({
+					disabled: false
+				})
 			}
 		});
 	},
@@ -86,12 +94,10 @@ const NewPoll = React.createClass({
 			}
 		}
 
-		console.log(isInputValid);
-		console.log(validOptions);
-
 		var isInputValid = (this.state.pollTitle !== '' &&
 		                    validOptions.length > 1);
-		var submitButtonStyle = isInputValid ? {} : {opacity: 0.45};
+
+		var disabled = this.state.disabled || !isInputValid;
 
 		return (
 			<div className='new-poll-main-container'>
@@ -103,7 +109,7 @@ const NewPoll = React.createClass({
 							<div className='options-holder'>
 								{this.getOptions()}
 							</div>
-							<button onClick={this.postPoll} style={submitButtonStyle} disabled={!isInputValid}>Submit</button>
+							<button onClick={this.postPoll} disabled={disabled}>Submit</button>
 						</div>
 					</div>
 				</div>

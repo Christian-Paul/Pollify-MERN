@@ -5,7 +5,9 @@ const VotingInterface = React.createClass({
 		return {
 			addingOption: false,
 			selectedOption: '',
-			newOption: ''
+			newOption: '',
+			disableVote: false,
+			disableAddOption: false
 		}
 	},
 	selectOption: function(event) {
@@ -34,20 +36,37 @@ const VotingInterface = React.createClass({
 	},
 	sendVote: function() {
 		// send vote to server
+
+		this.setState({
+			disableVote: true
+		});
+
 		var self = this;
 		$.ajax({
 			url: '/poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
 			method: 'POST',
 			success: function(response) {
 				self.props.updateOptions(response);
+
+				this.setState({
+					disableVote: false
+				});
 			},
 			error: function(response) {
 				alert('Could not apply vote. ' + response.responseText);
+
+				this.setState({
+					disableVote: false
+				});
 			}
 		});
 	},
 	sendNewOption: function() {
 		// send new option to server
+		this.setState({
+			disableAddOption: true
+		});
+
 		var self = this;
 		$.ajax({
 			url: '/poll/' + self.props.pollId + '/add-option' + '?newOption=' + self.state.newOption,
@@ -56,10 +75,18 @@ const VotingInterface = React.createClass({
 				// if successful, update state
 				self.props.updateOptions(response);
 				self.toggleAdding();
+
+				this.setState({
+					disableAddOption: false
+				});
 			},
 			error: function(response) {
 				// if failed, alert user
 				alert(response.responseText);
+
+				this.setState({
+					disableAddOption: false
+				});
 			}
 		});
 	},
@@ -70,7 +97,7 @@ const VotingInterface = React.createClass({
 	},
 	renderAdding: function() {
 		var isInputValid = (this.state.newOption.length > 0 && this.state.newOption.length < 50);
-		var addButtonStyle = isInputValid ? {} : {opacity: 0.45};
+		var disabled = this.state.disableAddOption || !isInputValid;
 
 		return (
 			<div className='voting-interface'>
@@ -84,8 +111,7 @@ const VotingInterface = React.createClass({
 							type='submit' 
 							className='add-new' 
 							onClick={this.sendNewOption} 
-							disabled={!isInputValid} 
-							style={addButtonStyle}>
+							disabled={disabled}>
 							Add
 						</button>
 						<button type='button' className='cancel-new' onClick={this.toggleAdding}>Cancel</button>
@@ -96,13 +122,14 @@ const VotingInterface = React.createClass({
 	},
 	renderDefault: function() {
 		var isSelectionValid = (this.state.selectedOption !== '');
-		var voteButtonStyle = isSelectionValid ? {} : {opacity: 0.45};
+		var disabled = this.state.disableVote || !isSelectionValid;
+
 		return (
 			<div className='voting-interface'>
 				<div className='vote-form'>
 					{this.getOptions()}
 					<div className='init-new-option' onClick={this.toggleAdding}>Or add your own option...</div>
-					<button className='vote-button' type='submit' onClick={this.sendVote} style={voteButtonStyle} disabled={!isSelectionValid}>Vote!</button>
+					<button className='vote-button' type='submit' onClick={this.sendVote} disabled={disabled}>Vote!</button>
 				</div>
 			</div>
 		)
