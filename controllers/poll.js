@@ -129,44 +129,49 @@ router.delete('/:pollId', function(req, res) {
 
 // process a vote
 router.post('/:pollId/vote', function(req, res) {
+	// if the vote field is blank, return error
+	if(!req.query.vote) {
+		res.status(400).send('Invalid vote data');
+	} else {
+		// the number corresponding to the user's vote
+		var userChoice = req.query.vote;
 
-	// the number corresponding to the user's vote
-	var userChoice = req.query.vote;
+		// building a property name to pass to the update field
+		// object will look like $inc: { options.2.votes: 1 }
+		// to denote the option at index 2 is being incremented by 1
+		var locationString = 'options.' + userChoice + '.votes';
+		var updateObj = {};
+		updateObj[locationString] = 1;
 
-	// building a property name to pass to the update field
-	// object will look like $inc: { options.2.votes: 1 }
-	// to denote the option at index 2 is being incremented by 1
-	var locationString = 'options.' + userChoice + '.votes';
-	var updateObj = {};
-	updateObj[locationString] = 1;
-
-	// find poll and check if the current user has already voted
-	Poll.getById(req.params.pollId, function(err, result) {
-		if(err) {
-			console.log(err);
-			res.status(500).send('Error connecting to database');
-		} else {
-			// check to see if voters array contains the user's id or IP already
-			if(req.session.hasOwnProperty('userInfo') && req.session.userInfo) {
-				var userId = req.session.userInfo.id;
+		// find poll and check if the current user has already voted
+		Poll.getById(req.params.pollId, function(err, result) {
+			if(err) {
+				console.log(err);
+				res.status(500).send('Error connecting to database');
 			} else {
-				var userId = req.ip;
-			}
-			// if their id/ip is present, send error
-			if(result.voters.indexOf(userId) !== -1) {
-				res.status(409).send('This IP or user has voted already');
-			} else {
-				Poll.addVote(req.params.pollId, userId, updateObj, function(err, result) {
-					if(err) {
-						console.log(err);
-						res.status(500).send('Error connecting to database');
-					} else {
-						res.status(200).send(result.options);
-					}
-				});
-			}
-		}		
-	})
+				// check to see if voters array contains the user's id or IP already
+				if(req.session.hasOwnProperty('userInfo') && req.session.userInfo) {
+					var userId = req.session.userInfo.id;
+				} else {
+					var userId = req.ip;
+				}
+				// if their id/ip is present, send error
+				if(result.voters.indexOf(userId) !== -1) {
+					res.status(409).send('This IP or user has voted already');
+				} else {
+					Poll.addVote(req.params.pollId, userId, updateObj, function(err, result) {
+						if(err) {
+							console.log(err);
+							res.status(500).send('Error connecting to database');
+						} else {
+							res.status(200).send(result.options);
+						}
+					});
+				}
+			}		
+		})
+	}
+
 });
 
 module.exports = router;

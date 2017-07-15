@@ -33269,7 +33269,7 @@
 					),
 					_react2.default.createElement(
 						'button',
-						{ className: 'vote-button', type: 'submit', onClick: this.sendVote, disabled: disabled },
+						{ className: 'vote-button', type: 'submit', onClick: this.sendVote, disabled: false },
 						'Vote!'
 					)
 				)

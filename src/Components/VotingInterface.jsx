@@ -129,7 +129,7 @@ const VotingInterface = React.createClass({
 				<div className='vote-form'>
 					{this.getOptions()}
 					<div className='init-new-option' onClick={this.toggleAdding}>Or add your own option...</div>
-					<button className='vote-button' type='submit' onClick={this.sendVote} disabled={disabled}>Vote!</button>
+					<button className='vote-button' type='submit' onClick={this.sendVote} disabled={false}>Vote!</button>
 				</div>
 			</div>
 		)
