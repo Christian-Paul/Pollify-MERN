@@ -14,6 +14,7 @@ router.get('/', function(req, res) {
 router.get('/user/:userId', function(req, res) {
 	Poll.getByAuthorId(req.params.userId, function(err, results) {
 		if(err) {
+			res.status(500).send('Error connecting to database');
 			console.log(err);
 		} else {
 			res.json(JSON.stringify(results));

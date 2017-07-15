@@ -23,13 +23,19 @@ const RecentPolls = React.createClass({
 			<div className='main-container'>
 				<div className='title'>Create and participate in polls</div>
 				<div className='polls-holder'>
-					{this.state.polls.map(function(poll, i) {
-						return (
-							<div className='poll' key={i}>
-								<IndexLink to={'/polls/' + poll['_id']}>{poll.title}</IndexLink>
-							</div>
-						)
-					})}
+					{(this.state.polls.length > 0 ? (
+						this.state.polls.map(function(poll, i) {
+							return (
+								<div className='poll' key={i}>
+									<IndexLink to={'/polls/' + poll['_id']}>{poll.title}</IndexLink>
+								</div>
+							)
+						})
+					) : (
+						<div className='poll'>
+							<p className='placeholder-text'>Nothing here yet.</p>
+						</div>
+					))}
 				</div>
 			</div>
 		)
