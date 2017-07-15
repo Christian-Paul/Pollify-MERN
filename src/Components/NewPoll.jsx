@@ -1,4 +1,5 @@
 import React from 'react';
+import AlertContainer from 'react-alert';
 
 const NewPoll = React.createClass({
 	contextTypes: {
@@ -76,7 +77,11 @@ const NewPoll = React.createClass({
 				this.context.router.push('/polls/' + response);
 			},
 			error: (response) => {
-				alert('Unable to create poll. ' + response.responseText)
+				// if failed, alert user
+				this.msg.error('Couldn\'t create poll. ' + response.responseText), {
+					time: 2000
+				};
+				
 				this.setState({
 					disabled: false
 				})
@@ -85,6 +90,13 @@ const NewPoll = React.createClass({
 	},
 	redirect: function() {
 		this.context.router.push('/');
+	},
+	alertOptions: {
+		offset: 14,
+		position: 'top right',
+		theme: 'light',
+		time: 5000,
+		transition: 'scale'
 	},
 	render: function() {
 		// this view is protected from unauth users
@@ -116,6 +128,7 @@ const NewPoll = React.createClass({
 								{this.getOptions()}
 							</div>
 							<button onClick={this.postPoll} disabled={disabled}>Submit</button>
+							<AlertContainer ref={a => this.msg = a} {...this.alertOptions} />
 						</div>
 					</div>
 				</div>

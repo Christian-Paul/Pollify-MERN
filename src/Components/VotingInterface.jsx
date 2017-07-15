@@ -1,4 +1,5 @@
 import React from 'react';
+import AlertContainer from 'react-alert';
 
 const VotingInterface = React.createClass({
 	getInitialState: function() {
@@ -47,12 +48,18 @@ const VotingInterface = React.createClass({
 			success: (response) => {
 				this.props.updateOptions(response);
 
+				this.msg.success('Vote submitted!'), {
+					time: 2000
+				};
+
 				this.setState({
 					disableVote: false
 				});
 			},
 			error: (response) => {
-				alert('Could not apply vote. ' + response.responseText);
+				this.msg.error('Couldn\'t apply vote. ' + response.responseText), {
+					time: 2000
+				};
 
 				this.setState({
 					disableVote: false
@@ -67,7 +74,7 @@ const VotingInterface = React.createClass({
 		});
 
 		$.ajax({
-			url: '/poll/' + self.props.pollId + '/add-option' + '?newOption=' + self.state.newOption,
+			url: '/poll/' + this.props.pollId + '/add-option' + '?newOption=' + this.state.newOption,
 			method: 'POST',
 			success: (response) => {
 				// if successful, update state
@@ -80,7 +87,9 @@ const VotingInterface = React.createClass({
 			},
 			error: (response) => {
 				// if failed, alert user
-				alert(response.responseText);
+				this.msg.error('Couldn\'t add option. ' + response.responseText), {
+					time: 2000
+				};
 
 				this.setState({
 					disableAddOption: false
@@ -92,6 +101,13 @@ const VotingInterface = React.createClass({
 		this.setState({
 			addingOption: !this.state.addingOption
 		});
+	},
+	alertOptions: {
+		offset: 14,
+		position: 'top right',
+		theme: 'light',
+		time: 5000,
+		transition: 'scale'
 	},
 	renderAdding: function() {
 		var isInputValid = (this.state.newOption.length > 0 && this.state.newOption.length < 50);
@@ -113,6 +129,7 @@ const VotingInterface = React.createClass({
 							Add
 						</button>
 						<button type='button' className='cancel-new' onClick={this.toggleAdding}>Cancel</button>
+						<AlertContainer ref={a => this.msg = a} {...this.alertOptions} />
 					</div>
 				</div>
 			</div>
@@ -128,6 +145,7 @@ const VotingInterface = React.createClass({
 					{this.getOptions()}
 					<div className='init-new-option' onClick={this.toggleAdding}>Or add your own option...</div>
 					<button className='vote-button' type='submit' onClick={this.sendVote} disabled={disabled}>Vote!</button>
+					<AlertContainer ref={a => this.msg = a} {...this.alertOptions} />
 				</div>
 			</div>
 		)
