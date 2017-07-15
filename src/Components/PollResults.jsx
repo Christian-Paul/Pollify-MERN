@@ -55,7 +55,7 @@ const PollResults = React.createClass({
 				}
 				{
 					(() => {
-						if('this.props.userId && this.props.pollAuthorId === this.props.userId') {
+						if(this.props.userId && this.props.pollAuthorId === this.props.userId) {
 							return (
 								<div className='delete-container'>
 									<div className='delete-button' onClick={this.deletePoll}>Delete Poll</div>

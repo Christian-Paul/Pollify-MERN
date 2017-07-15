@@ -69,6 +69,9 @@ const VotingInterface = React.createClass({
 		});
 	},
 	renderAdding: function() {
+		var isInputValid = (this.state.newOption.length > 0 && this.state.newOption.length < 50);
+		var addButtonStyle = isInputValid ? {} : {opacity: 0.45};
+
 		return (
 			<div className='voting-interface'>
 				<div className='vote-form'>
@@ -77,7 +80,14 @@ const VotingInterface = React.createClass({
 				<div className='new-option'>
 					<div className='new-option-form'>
 						<input type='text' name='new-option' placeholder='New Option' onChange={this.updateNewOption} />
-						<button type='submit' className='add-new' onClick={this.sendNewOption}>Add</button>
+						<button 
+							type='submit' 
+							className='add-new' 
+							onClick={this.sendNewOption} 
+							disabled={!isInputValid} 
+							style={addButtonStyle}>
+							Add
+						</button>
 						<button type='button' className='cancel-new' onClick={this.toggleAdding}>Cancel</button>
 					</div>
 				</div>
@@ -85,12 +95,14 @@ const VotingInterface = React.createClass({
 		)
 	},
 	renderDefault: function() {
+		var isSelectionValid = (this.state.selectedOption !== '');
+		var voteButtonStyle = isSelectionValid ? {} : {opacity: 0.45};
 		return (
 			<div className='voting-interface'>
 				<div className='vote-form'>
 					{this.getOptions()}
 					<div className='init-new-option' onClick={this.toggleAdding}>Or add your own option...</div>
-					<button className='vote-button' type='submit' onClick={this.sendVote}>Vote!</button>
+					<button className='vote-button' type='submit' onClick={this.sendVote} style={voteButtonStyle} disabled={!isSelectionValid}>Vote!</button>
 				</div>
 			</div>
 		)

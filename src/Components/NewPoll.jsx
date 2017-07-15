@@ -78,6 +78,21 @@ const NewPoll = React.createClass({
 		});
 	},
 	render: function() {
+		var allOptions = this.state.pollOptions;
+		var validOptions = [];
+		for(var prop in allOptions) {
+			if(allOptions[prop].length > 0 && allOptions[prop].length < 50) {
+				validOptions.push(allOptions[prop]);
+			}
+		}
+
+		console.log(isInputValid);
+		console.log(validOptions);
+
+		var isInputValid = (this.state.pollTitle !== '' &&
+		                    validOptions.length > 1);
+		var submitButtonStyle = isInputValid ? {} : {opacity: 0.45};
+
 		return (
 			<div className='new-poll-main-container'>
 				<div className='form-outline'>
@@ -88,7 +103,7 @@ const NewPoll = React.createClass({
 							<div className='options-holder'>
 								{this.getOptions()}
 							</div>
-							<button onClick={this.postPoll}>Submit</button>
+							<button onClick={this.postPoll} style={submitButtonStyle} disabled={!isInputValid}>Submit</button>
 						</div>
 					</div>
 				</div>
