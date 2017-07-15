@@ -61,33 +61,40 @@ router.post('/new', function(req, res) {
 		// creates an array of objects whose name property have the value of the formData options
 		var optionsArr = [];
 
-		for(option in formData.pollOptions) {
-			// only push the option value if its length is greater than 0 (not '')
-			if(formData.pollOptions[option] !== '') {
+		for(name in formData.pollOptions) {
+			var option = formData.pollOptions[name];
+			console.log(option);
+			// only push the option value if it has an acceptable length
+			if(option.length > 0 && option.length < 50) {
 				optionsArr.push({
-					name: formData.pollOptions[option]
+					name: option
 				});
 			}
 		}
 
-		var poll = {
-			title: title,
-			author: {
-				name: req.session.userInfo['screen_name'],
-				twitterId: req.session.userInfo.id
-			},
-			options: optionsArr
-		};
+		if(title.length === 0 || title.length > 50 || optionsArr.length < 2) {
+			res.status(400).send('Invalid title or options')
+		} else {
+			var poll = {
+				title: title,
+				author: {
+					name: req.session.userInfo['screen_name'],
+					twitterId: req.session.userInfo.id
+				},
+				options: optionsArr
+			};
 
-		Poll.addNew(poll, function(err, result) {
-			if(err) {
-				console.log(err);
-				res.status(500).send('Error connecting to database');
-			} else {
-				// redirect user to the poll they just created
-				res.status(200).send(result['_id']);
-			}
-		})
+			Poll.addNew(poll, function(err, result) {
+				if(err) {
+					console.log(err);
+					res.status(500).send('Error connecting to database');
+				} else {
+					// redirect user to the poll they just created
+					res.status(200).send(result['_id']);
+				}
+			})
+		}
+
 	}
 });
 
