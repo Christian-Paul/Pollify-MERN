@@ -41,18 +41,17 @@ const VotingInterface = React.createClass({
 			disableVote: true
 		});
 
-		var self = this;
 		$.ajax({
-			url: '/poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
+			url: '/poll/' + this.props.pollId + '/vote' + '?vote=' + this.state.selectedOption,
 			method: 'POST',
-			success: function(response) {
-				self.props.updateOptions(response);
+			success: (response) => {
+				this.props.updateOptions(response);
 
 				this.setState({
 					disableVote: false
 				});
 			},
-			error: function(response) {
+			error: (response) => {
 				alert('Could not apply vote. ' + response.responseText);
 
 				this.setState({
@@ -67,20 +66,19 @@ const VotingInterface = React.createClass({
 			disableAddOption: true
 		});
 
-		var self = this;
 		$.ajax({
 			url: '/poll/' + self.props.pollId + '/add-option' + '?newOption=' + self.state.newOption,
 			method: 'POST',
-			success: function(response) {
+			success: (response) => {
 				// if successful, update state
-				self.props.updateOptions(response);
-				self.toggleAdding();
+				this.props.updateOptions(response);
+				this.toggleAdding();
 
 				this.setState({
 					disableAddOption: false
 				});
 			},
-			error: function(response) {
+			error: (response) => {
 				// if failed, alert user
 				alert(response.responseText);
 
@@ -129,7 +127,7 @@ const VotingInterface = React.createClass({
 				<div className='vote-form'>
 					{this.getOptions()}
 					<div className='init-new-option' onClick={this.toggleAdding}>Or add your own option...</div>
-					<button className='vote-button' type='submit' onClick={this.sendVote} disabled={false}>Vote!</button>
+					<button className='vote-button' type='submit' onClick={this.sendVote} disabled={disabled}>Vote!</button>
 				</div>
 			</div>
 		)

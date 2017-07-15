@@ -28718,26 +28718,26 @@
 			});
 		},
 		postPoll: function postPoll() {
+			var _this = this;
+
 			this.setState({
 				disabled: true
 			});
 
-			var self = this;
-
 			$.ajax({
 				type: 'POST',
 				data: {
-					pollTitle: self.state.pollTitle,
-					pollOptions: self.state.pollOptions
+					pollTitle: this.state.pollTitle,
+					pollOptions: this.state.pollOptions
 				},
 				url: '/poll/new',
 				success: function success(response) {
 					// redirect to new poll
-					self.context.router.push('/polls/' + response);
+					_this.context.router.push('/polls/' + response);
 				},
 				error: function error(response) {
 					alert('Unable to create poll. ' + response.responseText);
-					this.setState({
+					_this.setState({
 						disabled: false
 					});
 				}
@@ -33154,48 +33154,50 @@
 			);
 		},
 		sendVote: function sendVote() {
+			var _this = this;
+
 			// send vote to server
 
 			this.setState({
 				disableVote: true
 			});
 
-			var self = this;
 			$.ajax({
-				url: '/poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
+				url: '/poll/' + this.props.pollId + '/vote' + '?vote=' + this.state.selectedOption,
 				method: 'POST',
 				success: function success(response) {
-					self.props.updateOptions(response);
+					_this.props.updateOptions(response);
 
-					this.setState({
+					_this.setState({
 						disableVote: false
 					});
 				},
 				error: function error(response) {
 					alert('Could not apply vote. ' + response.responseText);
 
-					this.setState({
+					_this.setState({
 						disableVote: false
 					});
 				}
 			});
 		},
 		sendNewOption: function sendNewOption() {
+			var _this2 = this;
+
 			// send new option to server
 			this.setState({
 				disableAddOption: true
 			});
 
-			var self = this;
 			$.ajax({
 				url: '/poll/' + self.props.pollId + '/add-option' + '?newOption=' + self.state.newOption,
 				method: 'POST',
 				success: function success(response) {
 					// if successful, update state
-					self.props.updateOptions(response);
-					self.toggleAdding();
+					_this2.props.updateOptions(response);
+					_this2.toggleAdding();
 
-					this.setState({
+					_this2.setState({
 						disableAddOption: false
 					});
 				},
@@ -33203,7 +33205,7 @@
 					// if failed, alert user
 					alert(response.responseText);
 
-					this.setState({
+					_this2.setState({
 						disableAddOption: false
 					});
 				}
@@ -33269,7 +33271,7 @@
 					),
 					_react2.default.createElement(
 						'button',
-						{ className: 'vote-button', type: 'submit', onClick: this.sendVote, disabled: false },
+						{ className: 'vote-button', type: 'submit', onClick: this.sendVote, disabled: disabled },
 						'Vote!'
 					)
 				)

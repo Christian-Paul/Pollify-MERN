@@ -63,21 +63,19 @@ const NewPoll = React.createClass({
 		this.setState({
 			disabled: true
 		});
-		
-		var self = this;
 
 		$.ajax({
 			type: 'POST',
 			data: {
-				pollTitle: self.state.pollTitle,
-				pollOptions: self.state.pollOptions
+				pollTitle: this.state.pollTitle,
+				pollOptions: this.state.pollOptions
 			},
 			url: '/poll/new',
-			success: function(response) {
+			success: (response) => {
 				// redirect to new poll
-				self.context.router.push('/polls/' + response);
+				this.context.router.push('/polls/' + response);
 			},
-			error: function(response) {
+			error: (response) => {
 				alert('Unable to create poll. ' + response.responseText)
 				this.setState({
 					disabled: false
