@@ -28975,7 +28975,7 @@
 					}
 				}(),
 				function () {
-					if ('this.props.userId && this.props.pollAuthorId === this.props.userId') {
+					if (_this.props.userId && _this.props.pollAuthorId === _this.props.userId) {
 						return _react2.default.createElement(
 							'div',
 							{ className: 'delete-container' },
@@ -33151,9 +33151,13 @@
 				url: '/poll/' + self.props.pollId + '/add-option' + '?newOption=' + self.state.newOption,
 				method: 'POST',
 				success: function success(response) {
-					// update options state in Poll component when done
-					self.props.updateOptions(response.pollOptions);
+					// if successful, update state
+					self.props.updateOptions(response);
 					self.toggleAdding();
+				},
+				error: function error(response) {
+					// if failed, alert user
+					alert(response.responseText);
 				}
 			});
 		},

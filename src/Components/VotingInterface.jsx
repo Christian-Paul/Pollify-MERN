@@ -35,33 +35,37 @@ const VotingInterface = React.createClass({
 	sendVote: function() {
 		// send vote to server
 		var self = this;
-	    $.ajax({
-	        url: '/poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
-	        method: 'POST',
-	        success: function(response) {
-	        	console.log(response);
-	        	if(response.result === 'success') {
+		$.ajax({
+			url: '/poll/' + self.props.pollId + '/vote' + '?vote=' + self.state.selectedOption,
+			method: 'POST',
+			success: function(response) {
+				console.log(response);
+				if(response.result === 'success') {
 					// if user voted successfuly, update options state in Poll component
 					self.props.updateOptions(response.pollOptions)
-	        	} else {
-	        		// if vote failed, show error message
-	        		alert('This account or IP address has already voted');
-	        	}
-	        }
-	    });
+				} else {
+					// if vote failed, show error message
+					alert('This account or IP address has already voted');
+				}
+			}
+		});
 	},
 	sendNewOption: function() {
 		// send new option to server
 		var self = this;
-	    $.ajax({
-	        url: '/poll/' + self.props.pollId + '/add-option' + '?newOption=' + self.state.newOption,
-	        method: 'POST',
-	        success: function(response) {
-				// update options state in Poll component when done
-				self.props.updateOptions(response.pollOptions);
+		$.ajax({
+			url: '/poll/' + self.props.pollId + '/add-option' + '?newOption=' + self.state.newOption,
+			method: 'POST',
+			success: function(response) {
+				// if successful, update state
+				self.props.updateOptions(response);
 				self.toggleAdding();
-	        }
-	    });
+			},
+			error: function(response) {
+				// if failed, alert user
+				alert(response.responseText);
+			}
+		});
 	},
 	toggleAdding: function() {
 		this.setState({

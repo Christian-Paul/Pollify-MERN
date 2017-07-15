@@ -6,8 +6,9 @@ router.get('/recent', function(req, res) {
 	Poll.getRecent(function(err, results) {
 		if(err) {
 			console.log(err);
+			res.status(500).send('Error connecting to database');
 		} else {
-			res.json(JSON.stringify(results));
+			res.status(200).json(JSON.stringify(results));
 		}
 	});
 });
@@ -17,24 +18,28 @@ router.get('/:pollId', function(req, res) {
 	Poll.getById(req.params.pollId, function(err, result) {
 		if(err) {
 			console.log(err);
+			res.status(500).send('Error connecting to database');
 		} else {
-			res.json(JSON.stringify(result));
+			res.status(200).json(JSON.stringify(result));
 		}
 	});
 });
 
 // add a new option to a poll
 router.post('/:pollId/add-option', function(req, res) {
-	Poll.addNewOption(req.query.newOption, req.params.pollId, function(err, result) {
-		if(err) {
-			console.log(err);
-		} else {
-			res.send({
-				result: 'success',
-				pollOptions: result.options
-			});
-		}
-	});
+	// validate user input
+	if(req.query.newOption.length < 1 || req.query.newOption.length > 50) {
+		res.status(400).send('Invalid option length');
+	} else {
+		Poll.addNewOption(req.query.newOption, req.params.pollId, function(err, result) {
+			if(err) {
+				console.log(err);
+				res.status(500).send('Error connecting to database');
+			} else {
+				res.status(200).send(result.options);
+			}
+		});
+	}
 });
 
 // create a poll
