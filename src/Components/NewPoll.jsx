@@ -83,7 +83,15 @@ const NewPoll = React.createClass({
 			}
 		});
 	},
+	redirect: function() {
+		this.context.router.push('/');
+	},
 	render: function() {
+		// this view is protected from unauth users
+		if(!this.props.userIsAuthenticated) {
+			this.redirect();
+		};
+
 		var allOptions = this.state.pollOptions;
 		var validOptions = [];
 		for(var prop in allOptions) {

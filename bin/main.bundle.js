@@ -28743,7 +28743,15 @@
 				}
 			});
 		},
+		redirect: function redirect() {
+			this.context.router.push('/');
+		},
 		render: function render() {
+			// this view is protected from unauth users
+			if (!this.props.userIsAuthenticated) {
+				this.redirect();
+			};
+
 			var allOptions = this.state.pollOptions;
 			var validOptions = [];
 			for (var prop in allOptions) {
