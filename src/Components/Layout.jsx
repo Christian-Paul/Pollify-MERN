@@ -26,16 +26,15 @@ const Layout = React.createClass({
 						userImage: response.userInfo['profile_image_url_https'],
 						userId: response.userInfo.id
 					});
+				} else {
+					that.setState({
+						userIsAuthenticated: false,
+						userName: '',
+						userImage: '',
+						userId: ''
+					})
 				}
 			})
-	},
-	signOut: function() {
-		this.setState({
-			userIsAuthenticated: false,
-			userName: '',
-			userImage: '',
-			userId: ''
-		});
 	},
 	render: function() {
 		var self = this;
@@ -50,7 +49,7 @@ const Layout = React.createClass({
 
 		return (
 			<div>
-				<Navbar signOut={this.signOut} userIsAuthenticated={this.state.userIsAuthenticated} userName={this.state.userName} userImage={this.state.userImage} userId={this.state.userId} />
+				<Navbar userIsAuthenticated={this.state.userIsAuthenticated} userName={this.state.userName} userImage={this.state.userImage} userId={this.state.userId} />
 				{children}
 				<Footer />
 			</div>

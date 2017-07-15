@@ -22,10 +22,11 @@ const UserMenu = onClickOutside(React.createClass({
 	},
 	signOut: function() {
 		var self = this;
-
 		$.ajax('/auth/logout')
-			.done(function() {
-				self.props.signOut();
+			.done(function(response) {
+				if(response === 'ok') {
+					window.location = '/';
+				}
 			});
 	},
 	render: function() {

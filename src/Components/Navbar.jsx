@@ -7,7 +7,6 @@ const Navbar = React.createClass({
 	signIn: function() {
 		$.ajax('/auth/request-token')
 			.done(function(response) {
-				console.log(response);
 				window.location = response;
 			});
 	},
@@ -45,7 +44,7 @@ const Navbar = React.createClass({
 				        </IndexLink>
 					</div>
 					<div className='destination'>
-						<UserMenu signOut={this.props.signOut} userIsAuthenticated={this.props.userIsAuthenticated} userName={this.props.userName} userImage={this.props.userImage} userId={this.props.userId} />
+						<UserMenu userIsAuthenticated={this.props.userIsAuthenticated} userName={this.props.userName} userImage={this.props.userImage} userId={this.props.userId} />
 					</div>
 				</div>
 			</div>

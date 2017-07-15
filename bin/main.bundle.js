@@ -10443,6 +10443,13 @@
 						userImage: response.userInfo['profile_image_url_https'],
 						userId: response.userInfo.id
 					});
+				} else {
+					that.setState({
+						userIsAuthenticated: false,
+						userName: '',
+						userImage: '',
+						userId: ''
+					});
 				}
 			});
 		},
@@ -10593,7 +10600,6 @@
 
 		signIn: function signIn() {
 			$.ajax('/auth/request-token').done(function (response) {
-				console.log(response);
 				window.location = response;
 			});
 		},
@@ -10727,8 +10733,10 @@
 		signOut: function signOut() {
 			var self = this;
 
-			$.ajax('/auth/logout').done(function () {
-				self.props.signOut();
+			$.ajax('/auth/logout').done(function (response) {
+				if (response === 'ok') {
+					window.location = '/';
+				}
 			});
 		},
 		render: function render() {

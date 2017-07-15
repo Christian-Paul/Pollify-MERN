@@ -55,8 +55,9 @@ router.get('/logout', function(req, res) {
 	req.session.destroy(function(err) {
 		if(err) {
 			console.log(err);
+			res.send('failed to sign out')
 		} else {
-			res.send('signed out');
+			res.send('ok');
 		}
 	})
 });
